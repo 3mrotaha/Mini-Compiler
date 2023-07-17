@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "codegenerator.h": "c",
+        "typeinfo": "c",
+        "symboltable.h": "c",
+        "functional": "c"
+    }
+}

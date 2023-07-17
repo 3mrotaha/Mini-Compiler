@@ -1,0 +1,272 @@
+ | expression '+' expression   { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal + $3.intVal;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid type for + operator");
+                // }
+}
+          | expression '-' expression   { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal - $3.intVal;
+                //     $$.varType = INT;
+                // }else if(($1.varType == WORD || $1.varType == SENTENCE) && $3.varType == CHAR){
+                //     int i = 0, strLen = strlen($1.wordVal);
+                //     for(; i<strLen && $1.wordVal[i] != $3.charVal; i++);
+                //     if(i < strLen){
+                //         $1.wordVal[i] = '\0';
+                //         strcat($1.wordVal, $1.wordVal + i + 1);
+                //     }
+
+                //     if($1.varType == WORD)
+                //         $$.varType = WORD;
+                //     else
+                //         $$.varType = SENTENCE;
+
+                // }else if($1.varType == SENTENCE && $3.varType == WORD){
+                //     char *p = malloc(strlen($1.wordVal) + 1);
+                //     p = strtok($1.wordVal, " \n");
+                //     $$.wordVal = strdup("");
+                //     while(p != NULL){
+                //         if(strcmp(p, $3.wordVal) == 0){
+                //             p = strtok(NULL, " \n");
+                //             continue;
+                //         }
+                //         strcat($$.wordVal, p);
+                //         strcat($$.wordVal, " ");
+                //         p = strtok(NULL, " \n");
+                //     }
+                //     strcat($$.wordVal, "\n");
+                //     $$.varType = SENTENCE;
+                // }else{
+                //     yyerror("Invalid Types for - operator");
+                // }                
+           }
+          | expression '#' expression   { 
+                if($1.varType == SENTENCE && $3.varType == CHAR){
+                    // concatinate the two types ^amr\n\0 ^ # 'a'
+                    char *p = malloc(strlen($1.wordVal) + 2);
+                    strcpy(p, $1.wordVal);
+                    p[strlen($1.wordVal) - 1] = $3.charVal;
+                    p[strlen($1.wordVal)] = '\n';
+                    p[strlen($1.wordVal) + 1] = '\0';
+                    $$.wordVal = strdup(p);
+                    $$.varType = SENTENCE;
+                }else if($1.varType == SENTENCE && $3.varType == WORD){
+                    char *p = malloc(strlen($1.wordVal) + strlen($3.wordVal) + 1);
+                    strcpy(p, $1.wordVal);
+                    p[strlen($1.wordVal) - 1] = '\0';
+                    strcat(p, $3.wordVal);
+                    // add the new line to the new sentence
+                    p[strlen($1.wordVal) + strlen($3.wordVal) - 1] = '\n';
+                    p[strlen($1.wordVal) + strlen($3.wordVal)] = '\0';
+                    $$.wordVal = strdup(p);
+                    $$.varType = SENTENCE;
+                } else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                    // concatinate the two types ^amr\n\0 ^ # ^amr\n\0^
+                    char *p = malloc(strlen($1.wordVal) + strlen($3.wordVal) + 1);
+                    strcpy(p, $1.wordVal);
+                    p[strlen($1.wordVal) - 1] = '\0';
+                    strcat(p, $3.wordVal);
+                    $$.wordVal = strdup(p);
+                    $$.varType = SENTENCE;
+                }else if($1.varType == WORD && $3.varType == CHAR){
+                    // concatinate the two types "amr\0" # 'a'
+                    char *p = malloc(strlen($1.wordVal) + 2);
+                    strcpy(p, $1.wordVal);
+                    p[strlen($1.wordVal)] = $3.charVal;
+                    p[strlen($1.wordVal) + 1] = '\0';
+                    $$.wordVal = strdup(p);
+                    $$.varType = WORD;
+                } else if($1.varType == WORD && $3.varType == WORD){
+                    strcat($1.wordVal, $3.wordVal);
+                    $$.wordVal = strdup($1.wordVal);
+                    $$.varType = WORD;
+                }else if($1.varType == WORD && $3.varType == SENTENCE){
+                    // concatinate the two types "amr\0" # ^amr\n\0^
+                    char *p = malloc(strlen($1.wordVal) + strlen($3.wordVal) + 1);
+                    strcpy(p, $1.wordVal);
+                    strcat(p, $3.wordVal);
+                    $$.wordVal = strdup(p);
+                    $$.varType = SENTENCE;
+                }else if($1.varType == CHAR && $3.varType == CHAR){
+                    char arr[3] = {$1.charVal, $3.charVal, '\0'};                    
+                    strcpy($$.wordVal, arr);
+                    $$.varType = WORD;
+                }else if($1.varType == CHAR && $3.varType == WORD){
+                    char* p = malloc(strlen($3.wordVal) + 1);
+                    p[0] = $1.charVal;
+                    p[1] = '\0';
+                    strcat(p, $3.wordVal);                    
+                    $$.wordVal = strdup(p);
+                    $$.varType = WORD;
+                } else if ($1.varType == CHAR && $3.varType == SENTENCE){
+                    char* p = malloc(strlen($3.wordVal) + 1);
+                    p[0] = $1.charVal;
+                    p[1] = '\0';
+                    strcat(p, $3.wordVal);                    
+                    $$.wordVal = strdup(p);
+                    $$.varType = SENTENCE;
+                }
+                //     yyerror("invalid types for # operator");
+                // }
+           }          
+          | expression ':' value   { 
+                // gets the ith char from a word, or word from a sentence
+                // if($3.varType == INT){
+                //     if($1.varType == CHAR){
+                //         if($3.intVal != 0)
+                //             yyerror("index exceeds char length");
+                //         $$.charVal = $1.charVal;
+                //         $$.varType = CHAR;
+                //     }else if($1.varType == WORD){
+                //         if($3.intVal > strlen($1.wordVal)){
+                //             yyerror("index exceeds word length");
+                //         }
+                //         $$.charVal = $1.wordVal[$3.intVal];
+                //         $$.varType = CHAR;                        
+                //     }else if($1.varType == SENTENCE){
+                //         if($3.intVal > strlen($1.wordVal)){
+                //             yyerror("index exceeds sentence length");
+                //         }
+                //         char* p = malloc(sizeof($1.wordVal));
+                //         int i = $3.intVal;
+                //         p = strtok($1.wordVal, " ");                        
+                //         while(i--){
+                //             p = strtok(NULL, " ");
+                //         }
+                //         $$.wordVal = strdup(p);
+                //         $$.varType = WORD;
+                //     }                    
+                // }else{
+                //     yyerror("index must be an integer");
+                // }              
+           }
+          | value                  { 
+                // if($1.varType == INT){
+                //     $$.intVal = $1.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR){
+                //     $$.charVal = $1.charVal;
+                //     $$.varType = CHAR;
+                // }else if($1.varType == WORD){
+                //     $$.wordVal = $1.wordVal;
+                //     $$.varType = WORD;                    
+                // }else if($1.varType == SENTENCE){
+                //     $$.wordVal = $1.wordVal;
+                //     $$.varType = SENTENCE;                    
+                // }
+           }
+          ; */
+
+
+            /* | value '<' value  {
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal < $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal < $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) < 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) < 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // }
+          }
+         | value '>' value  { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal > $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal > $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) > 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) > 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // }
+         }
+         | value LE value   { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal <= $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal <= $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) <= 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) <= 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // }
+         }
+         | value GE value   {
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal >= $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal >= $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) >= 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) >= 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // } 
+          }
+         | value EQ value   { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal == $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal == $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) == 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) == 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // }
+         }
+         | value NE value   { 
+                // if($1.varType == INT && $3.varType == INT) {                                    
+                //     $$.intVal = $1.intVal != $3.intVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == CHAR && $3.varType == CHAR){
+                //     $$.intVal = $1.charVal != $3.charVal;
+                //     $$.varType = INT;
+                // }else if($1.varType == WORD && $3.varType == WORD){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) != 0;
+                //     $$.varType = INT;
+                // }else if($1.varType == SENTENCE && $3.varType == SENTENCE){
+                //     $$.intVal = strcmp($1.wordVal, $3.wordVal) != 0;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid comparison");
+                // }
+         }
+         | '!' condition    {
+                // if($2.varType == INT) {                                    
+                //     $$.intVal = !$2.intVal;
+                //     $$.varType = INT;
+                // }else{
+                //     yyerror("Invalid condition");
+                // }            
+          } */
