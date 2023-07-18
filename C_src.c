@@ -154,5 +154,5 @@ int main(void){
 char *w1= strdup("");
 char *s1= strdup("");
 char *adverb= strdup("");
-for(int FoorLoopInterator = 0; FoorLoopInterator < 3; FoorLoopInterator++){
+while((w1)[0]){
 	

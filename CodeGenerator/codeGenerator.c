@@ -104,7 +104,9 @@ void codeGen_id(char* id){
 }
 
 void codeGen_clearWorkTree(void){
-    codeGen_clearWorkTree();
+    //printf("clearing work tree\n");
+    clearTree(exprRoot);
+    strcpy(finalExpr, "");
 }
 
 char* codeGen_condition(char *expr1, DataType_t dt1, char *expr2, DataType_t dt2, char* op){        
@@ -357,7 +359,7 @@ void codeGen_else(void){
     closeSrcFile();
 }
 
-void codeGen_while(char* condition){
+void codeGen_while(char* condition){    
     openSrcFile();
     //printf("generating code for while: %s\n", condition);
     fprintf(C_src, "while(%s){\n\t", condition);

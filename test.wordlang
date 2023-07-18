@@ -1,6 +1,9 @@
 word w1;
 sentence s1;
 sentence adverb;
+
+while(w1)
+    w1 = w1;
 loop(3)
     adverb = adverb # "very";
 w1 = "interesting";
