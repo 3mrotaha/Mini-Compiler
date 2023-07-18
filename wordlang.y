@@ -20,7 +20,7 @@ extern DataType_t dataType;
 extern ASTnode_t *root;
 extern ASTnode_t *exprRoot;
 extern FILE* traverseFile;
-char* buff;
+char condExpr[500] = "";
 void print_sentence(char* sentence);
 void storeInSymbolTable(char *name, Type_t type, DataType_t dataType, int lineNo, char* value);
 void yyerror(const char* s);
@@ -219,19 +219,36 @@ value: INT_CONSTANT       {
             $$.name = strdup($1.name);
             //printf("identifier\n");
     }
+    | TRUE {
+            storeInSymbolTable($1.name, KEYWORD, INT, yylineno, "1");
+            $$.varType = INT;
+            $$.nd = NULL;
+            strcpy($$.name, "1");
+            //printf("true\n");
+          }
+    | FALSE {
+            storeInSymbolTable($1.name, KEYWORD, INT, yylineno, "0");
+            $$.varType = INT;
+            $$.nd = NULL;
+            strcpy($$.name, "0");
+            //printf("false\n");
+        }
      ;
 
 
 conditional_statement: if_clause
     | if_clause else_clause
     ;
-if_clause: IF OPEN_PAREN condition CLOSE_PAREN {codeGen_if($3.wordVal);} OPEN_BRACKET {codeGen_punc($6.name);} statement_list CLOSE_BRACKET {
+
+if_clause: IF OPEN_PAREN condition CLOSE_PAREN {printf("my cond\n");codeGen_if(condExpr);} OPEN_BRACKET {codeGen_punc($6.name);} statement_list CLOSE_BRACKET {
         $$.nd = AST_mkNode($3.nd, $8.nd, $1.name);
+        strcpy(condExpr, "");
         codeGen_punc($9.name);
         //printf("if with brackets\n");
      }
-    | IF OPEN_PAREN condition CLOSE_PAREN {codeGen_if($3.wordVal);} statement { 
+    | IF OPEN_PAREN condition CLOSE_PAREN {printf("my cond\n");codeGen_if(condExpr);} statement { 
         $$.nd = AST_mkNode($3.nd, $6.nd, $1.name);
+        strcpy(condExpr, "");
         //printf("if\n");
      }
     ;
@@ -248,37 +265,32 @@ else_clause: ELSE {codeGen_else();} statement {
 
 condition: value {
                 $$.nd = $1.nd;
-                $$.wordVal = $1.name;
+                $$.varType = $1.varType;
+                strcpy(condExpr, $1.name);
                 //printf("value-only condition\n");
             }
             | expression relop expression {
                 checkType($1.varType, $3.varType);
+                char* expr1 = strdup(codeGen_expression($1.nd));
+                codeGen_clearWorkTree();
+                char* expr2 = strdup(codeGen_expression($3.nd));
+                strcpy(condExpr, strdup(codeGen_condition(expr1, $1.varType, expr2, $3.varType, $2.name)));
                 $$.varType = INT;
-                $$.nd = AST_mkNode($1.nd, $3.nd, $2.name);                
-                $$.wordVal = codeGen_codition($1.name, $3.name, $2.name);
-                //printf("value relop value condition\n");
+                $$.nd = AST_mkNode($1.nd, $3.nd, $2.name);                                
             }       
           | NOT condition    {
                 checkType($2.varType, INT);
-                $$.varType = INT;
-                $$.nd = AST_mkNode($1.nd, $2.nd, $1.name);
-                $$.wordVal = strdup(codeGen_codition($1.name, $2.wordVal, $1.name));
-                //printf("not condition\n");
+                $$.varType = $2.varType;
+                char* expr1 = strdup(codeGen_expression($2.nd));
+                strcpy(condExpr, strdup(codeGen_condition(expr1, $1.varType, NULL, EMPTY, $1.name)));
+                $$.nd = AST_mkNode(NULL, $2.nd, $1.name);
           }
-          | TRUE {
-            storeInSymbolTable($1.name, KEYWORD, INT, yylineno, "1");
-            $$.varType = INT;
-            $$.nd = NULL;
-            $$.wordVal = "1";
-            //printf("true\n");
+          | expression {                
+                char* expr1 = strdup(codeGen_expression($1.nd));
+                strcpy(condExpr ,strdup(codeGen_condition(expr1, $1.varType, NULL, EMPTY, NULL)));
+                $$.varType = $1.varType;
+                $$.nd = $1.nd;
           }
-          | FALSE {
-            storeInSymbolTable($1.name, KEYWORD, INT, yylineno, "0");
-            $$.varType = INT;
-            $$.nd = NULL;
-            $$.wordVal = "0";
-            //printf("false\n");
-        }
         ;
 
 relop: LE
@@ -294,28 +306,28 @@ arthop: ADD
 | REMOVE
 | GET;
 
-loop_statement: LOOP OPEN_PAREN expression CLOSE_PAREN {exprRoot = AST_mkNode(NULL, $3.nd, $3.name);
-                    char* expr = strdup(codeGen_expression(exprRoot->right)); codeGen_loop(expr);} OPEN_BRACKET statement_list CLOSE_BRACKET {    
-                    $$.nd = AST_mkNode($3.nd, $7.nd, $1.name);                    
+loop_statement: LOOP OPEN_PAREN condition CLOSE_PAREN {codeGen_loop(condExpr);} OPEN_BRACKET statement_list CLOSE_BRACKET {    
+                    $$.nd = AST_mkNode($3.nd, $7.nd, $1.name);
+                    strcpy(condExpr, "");
                     codeGen_punc($8.name);
                     //printf("loop\n");                    
                 }
-               | LOOP OPEN_PAREN expression CLOSE_PAREN  {exprRoot = AST_mkNode(NULL, $3.nd, $3.name);
-                    char* expr = strdup(codeGen_expression(exprRoot->right)); codeGen_loop(expr);}  statement {                 
-                    $$.nd = AST_mkNode($3.nd, $6.nd, $1.name);                    
+               | LOOP OPEN_PAREN condition CLOSE_PAREN  {codeGen_loop(condExpr);}  statement {                 
+                    $$.nd = AST_mkNode($3.nd, $6.nd, $1.name);
+                    strcpy(condExpr, "");                    
                     codeGen_punc("}");
                     //printf("loop\n");
                 }
-               | WHILE OPEN_PAREN condition CLOSE_PAREN {exprRoot = AST_mkNode(NULL, $3.nd, $3.name);
-                    char* expr = strdup(codeGen_expression(exprRoot->right)); codeGen_while(expr);} OPEN_BRACKET statement_list CLOSE_BRACKET {
-                    $$.nd = AST_mkNode($3.nd, $7.nd, $1.name); 
+                | WHILE OPEN_PAREN condition CLOSE_PAREN {codeGen_while(condExpr);} OPEN_BRACKET statement_list CLOSE_BRACKET {
+                    $$.nd = AST_mkNode($3.nd, $7.nd, $1.name);
+                    strcpy(condExpr, "");
                     codeGen_punc($8.name);                    
                     //printf("while\n");
                 }                
-               | WHILE OPEN_PAREN condition {exprRoot = AST_mkNode(NULL, $3.nd, $3.name);
-                    char* expr = strdup(codeGen_expression(exprRoot->right)); codeGen_while(expr);} CLOSE_PAREN statement
+               | WHILE OPEN_PAREN condition CLOSE_PAREN {codeGen_while(condExpr);}  statement
                 { 
-                    $$.nd = AST_mkNode($3.nd, $5.nd, $1.name);
+                    $$.nd = AST_mkNode($3.nd, $6.nd, $1.name);
+                    strcpy(condExpr, "");
                     codeGen_punc("}");                     
                     //printf("while\n");
                 }
@@ -331,7 +343,7 @@ void yyerror(const char* s) {
 int main(int argc, char* argv[]) {
     static int WriteOnce = 0;
     if (argc < 2) {
-        //printf("Usage: %s <input_file>\n", argv[0]);
+        printf("Usage: %s <input_file>\n", argv[0]);
         return 1;
     }
 

@@ -7,12 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}\\*.c",
-                "${workspaceFolder}\\AST\\*.c",
-                "${workspaceFolder}\\CodeGenerator\\*.c",
-                "${workspaceFolder}\\SymbolTable\\*.c",
+                "${workspaceFolder}\\C_src.c",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}\\out.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"

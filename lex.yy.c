@@ -811,12 +811,12 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 35 "wordlang.lex"
-{ yylval.nodeType.name = strdup(yytext); yylval.nodeType.wordVal = strdup(yytext + 1); yylval.nodeType.type = CONSTANT;yylval.nodeType.wordVal[strlen(yylval.nodeType.wordVal) - 1] = '\0'; yylval.nodeType.varType=(DataType_t)WORD; return WORD_CONSTANT; }
+{ yylval.nodeType.name = (char*) malloc(100);strcpy(yylval.nodeType.name, yytext); yylval.nodeType.type = CONSTANT; yylval.nodeType.varType=(DataType_t)WORD; return WORD_CONSTANT; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 36 "wordlang.lex"
-{ yylval.nodeType.name = (char*) malloc(sizeof(yytext)); strcpy(yylval.nodeType.name, yytext); yylval.nodeType.name[0] = '\"'; yylval.nodeType.name[strlen(yylval.nodeType.name) - 1] = '\0'; strcat(yylval.nodeType.name, "\\n\""); yylval.nodeType.name[strlen(yylval.nodeType.name) + 1] = '\0'; yylval.nodeType.wordVal = strdup(yytext + 1); yylval.nodeType.type = CONSTANT; yylval.nodeType.wordVal[strlen(yylval.nodeType.wordVal) - 1] = '\n'; yylval.nodeType.varType=(DataType_t)SENTENCE; return SENTENCE_CONSTANT; }
+{ yylval.nodeType.name = (char*) malloc(100);strcpy(yylval.nodeType.name, yytext); yylval.nodeType.name[0] = '\"'; yylval.nodeType.name[strlen(yytext) - 1] = '\0'; strcat(yylval.nodeType.name, "\\n\""); yylval.nodeType.type = CONSTANT; return SENTENCE_CONSTANT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP

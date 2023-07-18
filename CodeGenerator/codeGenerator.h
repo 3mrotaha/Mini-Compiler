@@ -29,7 +29,9 @@ void codeGen_declare(char* id, DataType_t type);
 
 char* codeGen_expression(ASTnode_t *root);
 
-char* codeGen_codition(char* lval, char* rval, char* op);
+char* codeGen_condition(char *expr1, DataType_t dt1, char *expr2, DataType_t dt2, char* op);
+
+void codeGen_clearWorkTree(void);
 
 void codeGen_if(char* condition);
 

@@ -103,17 +103,65 @@ void codeGen_id(char* id){
     closeSrcFile();
 }
 
-char* codeGen_codition(char* lval, char* rval, char* op){
-    //printf("generating code for condition: %s %s %s\n", lval, op, rval);
-    char* condition = malloc(sizeof(char) * 100);
-    
-    if(strcmp(op, "!") == 0){
-        sprintf(condition, "%s %s", op, lval);
-        return condition;
-    }
+void codeGen_clearWorkTree(void){
+    codeGen_clearWorkTree();
+}
 
-    sprintf(condition, "%s %s %s", lval, op, rval);
-    return condition;
+char* codeGen_condition(char *expr1, DataType_t dt1, char *expr2, DataType_t dt2, char* op){        
+    if(expr2 != NULL){
+        if(dt1 == WORD && dt1 == WORD){
+            sprintf(finalExpr, "strcmp(%s, %s)", expr1, expr2);
+            if(strcmp(op, "<") == 0){
+                sprintf(finalExpr, "%s < 0", expr1);
+            }
+            else if(strcmp(op, ">") == 0){
+                sprintf(finalExpr, "%s > 0", expr1);
+            }
+            else if(strcmp(op, "<=") == 0){
+                sprintf(finalExpr, "%s <= 0", expr1);
+            }
+            else if(strcmp(op, ">=") == 0){
+                sprintf(finalExpr, "%s >= 0", expr1);
+            }
+            else if(strcmp(op, "==") == 0){
+                sprintf(finalExpr, "%s == 0", expr1);
+            }
+            else if(strcmp(op, "!=") == 0){
+                sprintf(finalExpr, "%s != 0", expr1);
+            }
+            return finalExpr;
+        }else if(dt1 == SENTENCE && dt1 == SENTENCE){
+            sprintf(finalExpr, "strcmp(%s, %s)", expr1, expr2);
+            if(strcmp(op, "<") == 0){
+                sprintf(finalExpr, "%s < 0", expr1);
+            }
+            else if(strcmp(op, ">") == 0){
+                sprintf(finalExpr, "%s > 0", expr1);
+            }
+            else if(strcmp(op, "<=") == 0){
+                sprintf(finalExpr, "%s <= 0", expr1);
+            }
+            else if(strcmp(op, ">=") == 0){
+                sprintf(finalExpr, "%s >= 0", expr1);
+            }
+            else if(strcmp(op, "==") == 0){
+                sprintf(finalExpr, "%s == 0", expr1);
+            }
+            else if(strcmp(op, "!=") == 0){
+                sprintf(finalExpr, "%s != 0", expr1);
+            }
+            return finalExpr;
+        }else{
+            sprintf(finalExpr, "%s %s %s", expr1, op, expr2);
+            return finalExpr;
+        }
+    }
+    else{
+        if(dt1 == WORD || dt1 == SENTENCE || dt1 == CHAR){
+            sprintf(finalExpr, "(%s)[0]", expr1);
+        }
+        return finalExpr;
+    }
 }
 
 void codeGen_input(char* prompt_val, char* id, DataType_t type){
@@ -142,8 +190,7 @@ void codeGen_output(char* expression){
     //printf("generating code for output: %s\n", expression);
     fprintf(C_src, "printf(\"%%s\", %s);\n", expression);
     closeSrcFile();
-    clearTree(exprRoot);
-    strcpy(finalExpr, "");
+    codeGen_clearWorkTree();
 }
 
 void codeGen_declare(char* id, DataType_t type){
@@ -210,8 +257,7 @@ void codeGen_assign(char* expression, DataType_t type){
         break;
     }
     closeSrcFile();
-    clearTree(exprRoot);
-    strcpy(finalExpr, "");
+    codeGen_clearWorkTree();
 }
 
 void writeExpressionTreeToFile(ASTnode_t* root, FILE* file, int level) {
@@ -300,6 +346,7 @@ void codeGen_if(char* condition){
     openSrcFile();
     //printf("generating code for if: %s\n", condition);
     fprintf(C_src, "if(%s)\n", condition);
+    codeGen_clearWorkTree();
     closeSrcFile();
 }
 
@@ -315,8 +362,7 @@ void codeGen_while(char* condition){
     //printf("generating code for while: %s\n", condition);
     fprintf(C_src, "while(%s){\n\t", condition);
     closeSrcFile();
-    clearTree(exprRoot);
-    strcpy(finalExpr, "");
+    codeGen_clearWorkTree();
 }
 
 void codeGen_loop(char* id){
@@ -324,8 +370,7 @@ void codeGen_loop(char* id){
     //printf("generating code for loop: %s\n", id);
     fprintf(C_src, "for(int FoorLoopInterator = 0; FoorLoopInterator < %s; FoorLoopInterator++){\n\t", id);
     closeSrcFile();
-    clearTree(exprRoot);
-    strcpy(finalExpr, "");
+    codeGen_clearWorkTree();
 }
 
 void codeGen_helpersPrototypes(void){
@@ -333,11 +378,11 @@ void codeGen_helpersPrototypes(void){
     //printf("generating code for helper prototypes\n");
 
     fprintf(C_src, "typedef enum types{\n");
-    fprintf(C_src, "INT,\n");
-    fprintf(C_src, "WORD,\n");
-    fprintf(C_src, "SENTENCE,\n");
-    fprintf(C_src, "CHAR,\n");
-    fprintf(C_src, "EMPTY\n");
+    fprintf(C_src, "    INT,\n");
+    fprintf(C_src, "    WORD,\n");
+    fprintf(C_src, "    SENTENCE,\n");
+    fprintf(C_src, "    CHAR,\n");
+    fprintf(C_src, "    EMPTY\n");
     fprintf(C_src, "}DataType_t;\n");
     closeSrcFile();
 
@@ -349,6 +394,12 @@ void codeGen_helpersPrototypes(void){
     fprintf(C_src, "char* strGetIndex(char* str, int index);\n");
     fprintf(C_src," char charRemove(char ch1, char ch2);\n");
     fprintf(C_src, "char* stringCharRemove(char* str1, char ch);\n");
+    fprintf(C_src,"int getLessThan(char*, char*);\n");
+    fprintf(C_src,"int getGreaterThan(char*, char*);\n");
+    fprintf(C_src,"int getLessThanOrEqual(char*, char*);\n");
+    fprintf(C_src,"int getGreaterThanOrEqual(char*, char*);\n");
+    fprintf(C_src,"int getEqual(char*, char*);\n");
+    fprintf(C_src, "int getNotEqual(char*, char*);\n");
     closeSrcFile();
 }
 
@@ -357,94 +408,107 @@ void codeGen_helpersImplementations(void){
     //printf("generating code for helper implementations\n");
     // addition
     fprintf(C_src, "int getSum(int a, int b){\n");
-    fprintf(C_src, "return a + b;\n");
+    fprintf(C_src, "    return a + b;\n");
     fprintf(C_src, "}\n");
     closeSrcFile();
     // subtraction
     openSrcFile();
     fprintf(C_src, "int getSub(int a, int b){\n");
-    fprintf(C_src, "return a - b;\n");
+    fprintf(C_src, "    return a - b;\n");
     fprintf(C_src, "}\n");
     closeSrcFile();
     // concatenation
     openSrcFile();
     fprintf(C_src, "char* getConcat(char* a, char* b){\n");
-    fprintf(C_src, "char* result = malloc(sizeof(char) * 100);\n");
-    fprintf(C_src, "strcpy(result, a);\n");
-    fprintf(C_src, "strcat(result, \" \");\n");
-    fprintf(C_src, "strcat(result, b);\n");
-    closeSrcFile();
-    // if the result contains a new line char, move it the the end of the string
-    openSrcFile();
-    fprintf(C_src, "if(strchr(result, '\\n') != NULL){\n");
-    fprintf(C_src, "char* p = strchr(result, '\\n');\n");
-    fprintf(C_src, "int indx = p - result;\n");
-    fprintf(C_src, "memmove(result + indx, result + indx + 1, strlen(result) - indx);\n");
+    fprintf(C_src, "if(a == NULL){\n");
+    fprintf(C_src, "    return b;\n");
     fprintf(C_src, "}\n");
-    fprintf(C_src, "return result;\n");
+    fprintf(C_src, "if(b == NULL){\n");
+    fprintf(C_src, "    return a;\n");
+    fprintf(C_src, "}\n");
+    fprintf(C_src, "    char* result = calloc(100, sizeof(char));\n");
+    fprintf(C_src, "    strcpy(result, a);\n");
+    fprintf(C_src, "    if(strlen(a) > 1 && (strlen(b) > 1 || strchr(a, '\\n') != NULL))\n");
+    fprintf(C_src, "        strcat(result, \" \");\n");
+    fprintf(C_src, "    if(strchr(result, '\\n') != NULL){\n");
+    fprintf(C_src, "        strcat(result, b);\n");
+    fprintf(C_src, "        while(strchr(result, '\\n') != NULL){\n");
+    fprintf(C_src, "            char* p = strchr(result, '\\n');\n");
+    fprintf(C_src, "            int indx = p - result;\n");
+    fprintf(C_src, "            result[indx] = '\\0';\n");
+    fprintf(C_src, "            strcat(result, p + 1);\n");
+    fprintf(C_src, "        }\n");
+    fprintf(C_src, "        \n");
+    fprintf(C_src, "        strcat(result, \"\\n\");\n");
+    fprintf(C_src, "    }\n");
+    fprintf(C_src, "    else{\n");
+    fprintf(C_src, "        strcat(result, b);\n");
+    fprintf(C_src, "    }\n");
+    fprintf(C_src, "    return result;\n");
     fprintf(C_src, "}\n");
     closeSrcFile();
     // remove
     openSrcFile();
-    fprintf(C_src," char charRemove(char ch1, char ch2) {\n");
-    fprintf(C_src," if (ch1 == ch2) {\n");
-    fprintf(C_src,"    return '\\0'; // Return null character to indicate removal\n");
-    fprintf(C_src,"} else {\n");
-    fprintf(C_src,"    return ch1;\n");
-    fprintf(C_src,"}\n");
-    fprintf(C_src,"}\n");
-    fprintf(C_src, "char* strRemove(char* str1, char* str2) {\n");
-    fprintf(C_src, "    char* result = malloc(sizeof(char) * 100);\n");
-    fprintf(C_src, "    char* p = strstr(str1, str2);\n");
-    fprintf(C_src, "    if (p != NULL) {\n");
-    fprintf(C_src, "        size_t len2 = strlen(str2);\n");
-    fprintf(C_src, "        size_t index = p - str1;\n");
-    fprintf(C_src, "        strncpy(result, str1, index);\n");
-    fprintf(C_src, "        result[index] = '\\0';\n");
-    fprintf(C_src, "        strcat(result, p + len2);\n");
-    fprintf(C_src, "    } else {\n");
-    fprintf(C_src, "        strcpy(result, str1);\n");
-    fprintf(C_src, "    }\n");
-    fprintf(C_src, "    return result;\n");
-    fprintf(C_src, "}\n");
-    fprintf(C_src, "char* stringCharRemove(char* str1, char ch) {\n");
-    fprintf(C_src, "char* result = malloc(sizeof(char) * 100);\n");
-    fprintf(C_src, "char str2[2];\n");
-    fprintf(C_src, "str2[0] = ch;\n");
-    fprintf(C_src, "str2[1] = '\\0';\n");
-    fprintf(C_src, "char* p = strchr(str1, ch);\n");
-    fprintf(C_src, "if (p != NULL) {\n");
-    fprintf(C_src, "    size_t index = p - str1;\n");
-    fprintf(C_src, "    strncpy(result, str1, index);\n");
-    fprintf(C_src, "    result[index] = '\\0';\n");
-    fprintf(C_src, "    strcat(result, p + 1);\n");
-    fprintf(C_src, "} else {\n");
-    fprintf(C_src, "strcpy(result, str1);\n");
-    fprintf(C_src, "}\n");
-    fprintf(C_src, "return result;\n");
-    fprintf(C_src, "}\n");
+fprintf(C_src, "char* strRemove(char* str1, char* str2) {\n");
+fprintf(C_src, "    if(strchr(str1, ' ') != NULL){ // sentence expression\n");
+fprintf(C_src, "        // implement using strtok\n");
+fprintf(C_src, "        char* copy = calloc(100, sizeof(char));\n");
+fprintf(C_src, "        strcpy(copy, str1);\n");
+fprintf(C_src, "        char* result = calloc(100, sizeof(char));\n");
+fprintf(C_src, "        char* token = calloc(100, sizeof(char));\n");
+fprintf(C_src, "        token = strtok(copy, \" \\n\");\n");
+fprintf(C_src, "        while(token != NULL){\n");
+fprintf(C_src, "            if(strcmp(token, str2) != 0){\n");
+fprintf(C_src, "                strcat(result, token);\n");
+fprintf(C_src, "                strcat(result, \" \");\n");
+fprintf(C_src, "            }\n");
+fprintf(C_src, "            token = strtok(NULL, \" \\n\");\n");
+fprintf(C_src, "        }\n");
+fprintf(C_src, "        strcat(result, \"\\n\");\n");
+fprintf(C_src, "        return result;\n");
+fprintf(C_src, "    }\n");
+fprintf(C_src, "    else{ // word expression        \n");
+fprintf(C_src, "        if(strlen(str2) > 1){\n");
+fprintf(C_src, "            return strcmp(str1, str2) == 0 ? NULL : str1;\n");
+fprintf(C_src, "        }\n");
+fprintf(C_src, "        else{\n");
+fprintf(C_src, "            char* result = calloc(100, sizeof(char));\n");
+fprintf(C_src, "            strcpy(result, str1);\n");
+fprintf(C_src, "            char* p = strstr(result, str2);\n");
+fprintf(C_src, "            if(p == NULL){\n");
+fprintf(C_src, "                return strdup(result);\n");
+fprintf(C_src, "            }\n");
+fprintf(C_src, "            int indx = p - result;\n");
+fprintf(C_src, "            result[indx] = '\\0';\n");
+fprintf(C_src, "            strcat(result, p + strlen(str2));\n");
+fprintf(C_src, "            return strdup(result);\n");
+fprintf(C_src, "        }\n");
+fprintf(C_src, "    }\n");
+fprintf(C_src, "}\n");
     closeSrcFile();
     openSrcFile();
     fprintf(C_src, "char* strGetIndex(char* str, int index) {\n");
     fprintf(C_src, "    if (strchr(str, '\\n') != NULL) {\n");
-    fprintf(C_src, "        char* copy = malloc(sizeof(char) * 100);\n");
+    fprintf(C_src, "        char* copy = calloc(100, sizeof(char));\n");
     fprintf(C_src, "        strcpy(copy, str);\n");
-    fprintf(C_src, "        char* result = malloc(sizeof(char) * 100);\n");
+    fprintf(C_src, "        char* result = calloc(100, sizeof(char));\n");
     fprintf(C_src, "        int i = 0;\n");
     fprintf(C_src, "        if (index < 0) {\n");
     fprintf(C_src, "            // Count the number of tokens\n");
-    fprintf(C_src, "            char* token = malloc(sizeof(char) * 100);\n");
+    fprintf(C_src, "            char* token = calloc(100, sizeof(char));\n");
     fprintf(C_src, "            token = strtok(copy, \" \\n\");\n");
     fprintf(C_src, "            for (i = 0; token != NULL; i++) {\n");
     fprintf(C_src, "                token = strtok(NULL, \" \\n\");\n");
     fprintf(C_src, "            }\n");
-    fprintf(C_src, "            i = i - index;\n");
+    fprintf(C_src, "            index = i + index;\n");
+    fprintf(C_src, "            i = 0;\n");
     fprintf(C_src, "        }\n");
-    fprintf(C_src, "        char* token = malloc(sizeof(char) * 100);\n");
+    fprintf(C_src, "        char* token = calloc(100, sizeof(char));\n");
+    fprintf(C_src, "        strcpy(copy, str);\n");
     fprintf(C_src, "        token = strtok(copy, \" \\n\");\n");
     fprintf(C_src, "        while (token != NULL) {\n");
     fprintf(C_src, "            if (i == index) {\n");
-    fprintf(C_src, "                result = malloc(sizeof(char) * strlen(token) + 1);\n");
+    fprintf(C_src, "                result = calloc(strlen(token) + 1, sizeof(char));\n");
     fprintf(C_src, "                strcpy(result, token);\n");
     fprintf(C_src, "                return result;\n");
     fprintf(C_src, "            }\n");
@@ -452,7 +516,7 @@ void codeGen_helpersImplementations(void){
     fprintf(C_src, "            i++;\n");
     fprintf(C_src, "        }\n");
     fprintf(C_src, "    } else {\n");
-    fprintf(C_src, "        char* result = malloc(sizeof(char) * 2);\n");
+    fprintf(C_src, "        char* result =calloc(2, sizeof(char));\n");
     fprintf(C_src, "        if(index < 0){\n");
     fprintf(C_src, "            index = strlen(str) + index;\n");
     fprintf(C_src, "        }\n");
@@ -460,7 +524,31 @@ void codeGen_helpersImplementations(void){
     fprintf(C_src, "        result[1] = '\\0';\n");
     fprintf(C_src, "        return result;\n");
     fprintf(C_src, "    }\n");
-    fprintf(C_src, "    return \"\\0\";\n");
+    fprintf(C_src, "        return NULL;\n");
+    fprintf(C_src, "    }\n");
+    closeSrcFile();
+    openSrcFile();
+    fprintf(C_src, "int getLessThan(char* str1, char* str2) {\n");
+    fprintf(C_src, "    return strcmp(str1, str2) < 0 ? 1 : 0;\n");
+    fprintf(C_src, "}\n");
+
+    fprintf(C_src, "int getGreaterThan(char* str1, char* str2) {\n");
+    fprintf(C_src, "    return strcmp(str1, str2) > 0 ? 1 : 0;\n");
+    fprintf(C_src, "}\n");
+
+    fprintf(C_src, "int getLessThanOrEqual(char* str1, char* str2) {\n");
+    fprintf(C_src, "    return strcmp(str1, str2) <= 0 ? 1 : 0;\n");
+    fprintf(C_src, "}\n");
+
+    fprintf(C_src, "int getGreaterThanOrEqual(char* str1, char* str2) {\n");
+    fprintf(C_src, "    return strcmp(str1, str2) >= 0 ? 1 : 0;\n");
+    fprintf(C_src, "}\n");
+
+    fprintf(C_src, "int getEqual(char* str1, char* str2) {\n");
+    fprintf(C_src, "    return strcmp(str1, str2) == 0 ? 1 : 0;\n");
+    fprintf(C_src, "}\n");
+    fprintf(C_src, "int getNotEqual(char* str1, char* str2) {\n");
+    fprintf(C_src, "       return strcmp(str1, str2) != 0 ? 1 : 0;\n");
     fprintf(C_src, "}\n");
     closeSrcFile();
 }
@@ -483,10 +571,13 @@ void codeGen_punc(char* punc){
         fprintf(C_src, ")");
         break;
     case '{':
-        fprintf(C_src, "{\n");
+        fprintf(C_src, "{\n\t");
         break;
     case '}':
         fprintf(C_src, "}\n");
+        break;
+    case '!':
+        fprintf(C_src, "!");
         break;
     }
     closeSrcFile();

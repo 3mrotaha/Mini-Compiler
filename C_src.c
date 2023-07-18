@@ -5,11 +5,11 @@
 #include <ctype.h>
 #include <math.h>
 typedef enum types{
-INT,
-WORD,
-SENTENCE,
-CHAR,
-EMPTY
+    INT,
+    WORD,
+    SENTENCE,
+    CHAR,
+    EMPTY
 }DataType_t;
 int getSum(int a, int b);
 int getSub(int a, int b);
@@ -18,81 +18,103 @@ char* strRemove(char* str1, char* str2);
 char* strGetIndex(char* str, int index);
  char charRemove(char ch1, char ch2);
 char* stringCharRemove(char* str1, char ch);
+int getLessThan(char*, char*);
+int getGreaterThan(char*, char*);
+int getLessThanOrEqual(char*, char*);
+int getGreaterThanOrEqual(char*, char*);
+int getEqual(char*, char*);
+int getNotEqual(char*, char*);
 int getSum(int a, int b){
-return a + b;
+    return a + b;
 }
 int getSub(int a, int b){
-return a - b;
+    return a - b;
 }
 char* getConcat(char* a, char* b){
-char* result = malloc(sizeof(char) * 100);
-strcpy(result, a);
-strcat(result, " ");
-strcat(result, b);
-if(strchr(result, '\n') != NULL){
-char* p = strchr(result, '\n');
-int indx = p - result;
-memmove(result + indx, result + indx + 1, strlen(result) - indx);
+if(a == NULL){
+    return b;
 }
-return result;
+if(b == NULL){
+    return a;
 }
- char charRemove(char ch1, char ch2) {
- if (ch1 == ch2) {
-    return '\0'; // Return null character to indicate removal
-} else {
-    return ch1;
-}
-}
-char* strRemove(char* str1, char* str2) {
-    char* result = malloc(sizeof(char) * 100);
-    char* p = strstr(str1, str2);
-    if (p != NULL) {
-        size_t len2 = strlen(str2);
-        size_t index = p - str1;
-        strncpy(result, str1, index);
-        result[index] = '\0';
-        strcat(result, p + len2);
-    } else {
-        strcpy(result, str1);
+    char* result = calloc(100, sizeof(char));
+    strcpy(result, a);
+    if(strlen(a) > 1 && (strlen(b) > 1 || strchr(a, '\n') != NULL))
+        strcat(result, " ");
+    if(strchr(result, '\n') != NULL){
+        strcat(result, b);
+        while(strchr(result, '\n') != NULL){
+            char* p = strchr(result, '\n');
+            int indx = p - result;
+            result[indx] = '\0';
+            strcat(result, p + 1);
+        }
+        
+        strcat(result, "\n");
+    }
+    else{
+        strcat(result, b);
     }
     return result;
 }
-char* stringCharRemove(char* str1, char ch) {
-char* result = malloc(sizeof(char) * 100);
-char str2[2];
-str2[0] = ch;
-str2[1] = '\0';
-char* p = strchr(str1, ch);
-if (p != NULL) {
-    size_t index = p - str1;
-    strncpy(result, str1, index);
-    result[index] = '\0';
-    strcat(result, p + 1);
-} else {
-strcpy(result, str1);
-}
-return result;
+char* strRemove(char* str1, char* str2) {
+    if(strchr(str1, ' ') != NULL){ // sentence expression
+        // implement using strtok
+        char* copy = calloc(100, sizeof(char));
+        strcpy(copy, str1);
+        char* result = calloc(100, sizeof(char));
+        char* token = calloc(100, sizeof(char));
+        token = strtok(copy, " \n");
+        while(token != NULL){
+            if(strcmp(token, str2) != 0){
+                strcat(result, token);
+                strcat(result, " ");
+            }
+            token = strtok(NULL, " \n");
+        }
+        strcat(result, "\n");
+        return result;
+    }
+    else{ // word expression        
+        if(strlen(str2) > 1){
+            return strcmp(str1, str2) == 0 ? NULL : str1;
+        }
+        else{
+            char* result = calloc(100, sizeof(char));
+            strcpy(result, str1);
+            char* p = strstr(result, str2);
+            if(p == NULL){
+                return strdup(result);
+            }
+            int indx = p - result;
+            result[indx] = '\0';
+            strcat(result, p + strlen(str2));
+            return strdup(result);
+        }
+    }
 }
 char* strGetIndex(char* str, int index) {
     if (strchr(str, '\n') != NULL) {
-        char* copy = malloc(sizeof(char) * 100);
+        char* copy = calloc(100, sizeof(char));
         strcpy(copy, str);
-        char* result = malloc(sizeof(char) * 100);
+        char* result = calloc(100, sizeof(char));
         int i = 0;
         if (index < 0) {
             // Count the number of tokens
-            char* token = malloc(sizeof(char) * 100);
+            char* token = calloc(100, sizeof(char));
             token = strtok(copy, " \n");
             for (i = 0; token != NULL; i++) {
                 token = strtok(NULL, " \n");
             }
-            i = i - index;
+            index = i + index;
+            i = 0;
         }
-        char* token = malloc(sizeof(char) * 100);
+        char* token = calloc(100, sizeof(char));
+        strcpy(copy, str);
         token = strtok(copy, " \n");
         while (token != NULL) {
             if (i == index) {
-                result = malloc(sizeof(char) * strlen(token) + 1);
+                result = calloc(strlen(token) + 1, sizeof(char));
                 strcpy(result, token);
                 return result;
             }
@@ -100,7 +122,7 @@ char* strGetIndex(char* str, int index) {
             i++;
         }
     } else {
-        char* result = malloc(sizeof(char) * 2);
+        char* result =calloc(2, sizeof(char));
         if(index < 0){
             index = strlen(str) + index;
         }
@@ -108,11 +130,29 @@ char* strGetIndex(char* str, int index) {
         result[1] = '\0';
         return result;
     }
-    return "\0";
+        return NULL;
+    }
+int getLessThan(char* str1, char* str2) {
+    return strcmp(str1, str2) < 0 ? 1 : 0;
+}
+int getGreaterThan(char* str1, char* str2) {
+    return strcmp(str1, str2) > 0 ? 1 : 0;
+}
+int getLessThanOrEqual(char* str1, char* str2) {
+    return strcmp(str1, str2) <= 0 ? 1 : 0;
+}
+int getGreaterThanOrEqual(char* str1, char* str2) {
+    return strcmp(str1, str2) >= 0 ? 1 : 0;
+}
+int getEqual(char* str1, char* str2) {
+    return strcmp(str1, str2) == 0 ? 1 : 0;
+}
+int getNotEqual(char* str1, char* str2) {
+       return strcmp(str1, str2) != 0 ? 1 : 0;
 }
 int main(void){
-char d= '\0';
-d= (strGetIndex("project",-2))[0];
-printf("%s", (char[2]){d, '\0'});
-return 0;
-}
+char *w1= strdup("");
+char *s1= strdup("");
+char *adverb= strdup("");
+for(int FoorLoopInterator = 0; FoorLoopInterator < 3; FoorLoopInterator++){
+	
