@@ -60,6 +60,7 @@ extern int yylineno;
 int yydebug = 1;
 FILE* file;
 int tempCount = 0;
+extern char outputFile[50];
 extern DataType_t dataType;
 extern ASTnode_t *root;
 extern ASTnode_t *exprRoot;
@@ -72,7 +73,7 @@ void yyerror(const char* s);
 /* Additional function declarations */
 
 
-#line 32 "wordlang.y"
+#line 33 "wordlang.y"
 typedef union {
     struct {
         char* name;
@@ -98,11 +99,11 @@ typedef union {
 
 
 
-#define	YYFINAL		103
+#define	YYFINAL		108
 #define	YYFLAG		-32768
 #define	YYNTBASE	40
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 291 ? yytranslate[x] : 67)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 291 ? yytranslate[x] : 68)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -140,48 +141,51 @@ static const char yytranslate[] = {     0,
 #if YYDEBUG != 0
 static const short yyprhs[] = {     0,
      0,     2,     4,     7,     9,    10,    15,    20,    24,    26,
-    28,    30,    32,    34,    36,    40,    41,    47,    49,    51,
-    53,    55,    57,    59,    63,    67,    69,    72,    74,    76,
-    78,    80,    82,    84,    86,    88,    91,    92,    93,   103,
-   104,   111,   112,   116,   117,   118,   125,   127,   131,   134,
-   136,   138,   140,   142,   144,   146,   148,   150,   152,   154,
-   156,   158,   159,   168,   169,   176,   177,   186,   187
+    28,    30,    32,    34,    36,    40,    44,    45,    51,    54,
+    55,    60,    63,    65,    67,    69,    71,    73,    75,    79,
+    83,    85,    88,    90,    92,    94,    96,    98,   100,   102,
+   104,   107,   108,   109,   119,   120,   127,   128,   132,   133,
+   134,   141,   145,   148,   150,   152,   154,   156,   158,   160,
+   162,   164,   166,   168,   170,   172,   173,   182,   183,   190,
+   191,   200,   201
 };
 
 static const short yyrhs[] = {    41,
      0,    42,     0,    41,    42,     0,    45,     0,     0,     7,
-    43,    48,    33,     0,    12,     6,     7,    33,     0,    13,
-    47,    33,     0,    50,     0,    62,     0,     8,     0,     9,
-     0,    10,     0,    11,     0,    44,     7,    33,     0,     0,
-    44,     7,    46,    48,    33,     0,    32,     0,    33,     0,
-    34,     0,    35,     0,    36,     0,    37,     0,    36,    47,
-    37,     0,    47,    61,    47,     0,    49,     0,    30,    47,
-     0,     4,     0,     3,     0,     5,     0,     6,     0,     7,
-     0,    18,     0,    19,     0,    51,     0,    51,    55,     0,
-     0,     0,    15,    36,    59,    37,    52,    34,    53,    41,
-    35,     0,     0,    15,    36,    59,    37,    54,    42,     0,
-     0,    16,    56,    42,     0,     0,     0,    16,    57,    34,
-    58,    41,    35,     0,    49,     0,    47,    60,    47,     0,
-    31,    59,     0,    47,     0,    26,     0,    27,     0,    28,
-     0,    29,     0,    25,     0,    24,     0,    31,     0,    20,
-     0,    22,     0,    21,     0,    23,     0,     0,    14,    36,
-    59,    37,    63,    34,    41,    35,     0,     0,    14,    36,
-    59,    37,    64,    42,     0,     0,    17,    36,    59,    37,
-    65,    34,    41,    35,     0,     0,    17,    36,    59,    37,
-    66,    42,     0
+    43,    49,    33,     0,    12,     6,     7,    33,     0,    13,
+    48,    33,     0,    51,     0,    63,     0,     8,     0,     9,
+     0,    10,     0,    11,     0,    44,     7,    33,     0,    44,
+     7,    32,     0,     0,    44,     7,    46,    49,    33,     0,
+     7,    32,     0,     0,     7,    47,    49,    33,     0,     7,
+    33,     0,    32,     0,    33,     0,    34,     0,    35,     0,
+    36,     0,    37,     0,    36,    48,    37,     0,    48,    62,
+    48,     0,    50,     0,    30,    48,     0,     4,     0,     3,
+     0,     5,     0,     6,     0,     7,     0,    18,     0,    19,
+     0,    52,     0,    52,    56,     0,     0,     0,    15,    36,
+    60,    37,    53,    34,    54,    41,    35,     0,     0,    15,
+    36,    60,    37,    55,    42,     0,     0,    16,    57,    42,
+     0,     0,     0,    16,    58,    34,    59,    41,    35,     0,
+    48,    61,    48,     0,    31,    60,     0,    48,     0,    26,
+     0,    27,     0,    28,     0,    29,     0,    25,     0,    24,
+     0,    31,     0,    20,     0,    22,     0,    21,     0,    23,
+     0,     0,    14,    36,    60,    37,    64,    34,    41,    35,
+     0,     0,    14,    36,    60,    37,    65,    42,     0,     0,
+    17,    36,    60,    37,    66,    34,    41,    35,     0,     0,
+    17,    36,    60,    37,    67,    42,     0
 };
 
 #endif
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-    63,    69,    72,    79,    83,    83,    91,   100,   106,   110,
-   117,   120,   123,   126,   131,   142,   142,   155,   156,   157,
-   158,   159,   160,   163,   167,   171,   178,   186,   193,   200,
-   207,   214,   222,   229,   239,   240,   243,   243,   243,   249,
-   249,   255,   255,   259,   259,   259,   266,   272,   281,   288,
-   296,   297,   298,   299,   300,   301,   302,   304,   305,   306,
-   307,   309,   309,   315,   315,   321,   321,   327,   328
+    64,    70,    73,    80,    84,    84,    93,   102,   108,   112,
+   119,   122,   125,   128,   133,   145,   157,   157,   168,   184,
+   184,   192,   211,   212,   213,   214,   215,   216,   219,   223,
+   227,   235,   243,   250,   257,   264,   271,   279,   286,   296,
+   297,   300,   300,   300,   306,   306,   312,   312,   316,   316,
+   316,   323,   333,   341,   350,   351,   352,   353,   354,   355,
+   356,   358,   359,   360,   361,   363,   363,   369,   369,   375,
+   375,   381,   382
 };
 #endif
 
@@ -194,112 +198,116 @@ static const char * const yytname[] = {   "$","error","$undefined.","CHAR_CONSTA
 "TRUE","FALSE","ADD","REMOVE","CONCAT","GET","LT","GT","LE","GE","EQ","NE","EQUAL",
 "NOT","COMMA","SEMI_COLON","OPEN_BRACKET","CLOSE_BRACKET","OPEN_PAREN","CLOSE_PAREN",
 "'('","')'","program","statement_list","statement","@1","datatype","declaration",
-"@2","expression","assignment","value","conditional_statement","if_clause","@3",
-"@4","@5","else_clause","@6","@7","@8","condition","relop","arthop","loop_statement",
-"@9","@10","@11","@12", NULL
+"@2","@3","expression","assignment","value","conditional_statement","if_clause",
+"@4","@5","@6","else_clause","@7","@8","@9","condition","relop","arthop","loop_statement",
+"@10","@11","@12","@13", NULL
 };
 #endif
 
 static const short yyr1[] = {     0,
     40,    41,    41,    42,    43,    42,    42,    42,    42,    42,
-    44,    44,    44,    44,    45,    46,    45,    -1,    -1,    -1,
-    -1,    -1,    -1,    47,    47,    47,    48,    49,    49,    49,
-    49,    49,    49,    49,    50,    50,    52,    53,    51,    54,
-    51,    56,    55,    57,    58,    55,    59,    59,    59,    59,
-    60,    60,    60,    60,    60,    60,    60,    61,    61,    61,
-    61,    63,    62,    64,    62,    65,    62,    66,    62
+    44,    44,    44,    44,    45,    45,    46,    45,    45,    47,
+    45,    45,    -1,    -1,    -1,    -1,    -1,    -1,    48,    48,
+    48,    49,    50,    50,    50,    50,    50,    50,    50,    51,
+    51,    53,    54,    52,    55,    52,    57,    56,    58,    59,
+    56,    60,    60,    60,    61,    61,    61,    61,    61,    61,
+    61,    62,    62,    62,    62,    64,    63,    65,    63,    66,
+    63,    67,    63
 };
 
 static const short yyr2[] = {     0,
      1,     1,     2,     1,     0,     4,     4,     3,     1,     1,
-     1,     1,     1,     1,     3,     0,     5,     1,     1,     1,
-     1,     1,     1,     3,     3,     1,     2,     1,     1,     1,
-     1,     1,     1,     1,     1,     2,     0,     0,     9,     0,
-     6,     0,     3,     0,     0,     6,     1,     3,     2,     1,
-     1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-     1,     0,     8,     0,     6,     0,     8,     0,     6
+     1,     1,     1,     1,     3,     3,     0,     5,     2,     0,
+     4,     2,     1,     1,     1,     1,     1,     1,     3,     3,
+     1,     2,     1,     1,     1,     1,     1,     1,     1,     1,
+     2,     0,     0,     9,     0,     6,     0,     3,     0,     0,
+     6,     3,     2,     1,     1,     1,     1,     1,     1,     1,
+     1,     1,     1,     1,     1,     0,     8,     0,     6,     0,
+     8,     0,     6
 };
 
 static const short yydefact[] = {     0,
      5,    11,    12,    13,    14,     0,     0,     0,     0,     0,
-     1,     2,     0,     4,     9,    35,    10,     0,     0,    29,
-    28,    30,    31,    32,    33,    34,     0,     0,    26,     0,
-     0,     0,     3,    16,    42,    36,     0,     0,     0,     0,
-    58,    60,    59,    61,     8,     0,     0,    50,    26,     0,
-     0,     0,    15,     0,     0,     0,    27,     6,     7,    24,
-    25,    49,    56,    55,    51,    52,    53,    54,    57,     0,
-    64,    40,    68,     0,    43,    45,    48,     0,     0,     0,
-     0,     0,     0,    17,     0,     0,    65,    38,    41,     0,
-    69,     0,     0,     0,     0,    46,    63,     0,    67,    39,
-     0,     0,     0
+     1,     2,     0,     4,     9,    40,    10,    19,    22,     0,
+     0,     0,    34,    33,    35,    36,    37,    38,    39,     0,
+     0,    31,     0,     0,     0,     3,    17,    47,    41,     0,
+     0,     0,     0,     0,    62,    64,    63,    65,     8,     0,
+     0,    54,     0,     0,     0,    16,    15,     0,     0,     0,
+    32,     6,    21,     7,    29,    30,    53,    60,    59,    55,
+    56,    57,    58,    61,     0,    68,    45,    72,     0,    48,
+    50,    52,     0,     0,     0,     0,     0,     0,    18,     0,
+     0,    69,    43,    46,     0,    73,     0,     0,     0,     0,
+    51,    67,     0,    71,    44,     0,     0,     0
 };
 
-static const short yydefgoto[] = {   101,
-    11,    12,    18,    13,    14,    54,    48,    38,    29,    15,
-    16,    80,    94,    81,    36,    55,    56,    85,    50,    70,
-    46,    17,    78,    79,    82,    83
+static const short yydefgoto[] = {   106,
+    11,    12,    20,    13,    14,    58,    21,    52,    41,    32,
+    15,    16,    85,    99,    86,    39,    59,    60,    90,    53,
+    75,    50,    17,    83,    84,    87,    88
 };
 
-static const short yypact[] = {   126,
--32768,-32768,-32768,-32768,-32768,     1,     5,   -17,   -16,   -14,
-   126,-32768,    18,-32768,-32768,    16,-32768,     3,    29,-32768,
--32768,-32768,-32768,-32768,-32768,-32768,     5,   109,-32768,    -1,
-    -1,    -1,-32768,     9,     0,-32768,     5,    30,    33,     6,
--32768,-32768,-32768,-32768,-32768,     5,    -1,   127,-32768,    23,
-    25,    32,-32768,     3,   126,    37,    -7,-32768,-32768,-32768,
-    -7,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,     5,
-    41,    42,    43,    34,-32768,-32768,    -7,    44,   126,    45,
-   126,    46,   126,-32768,   126,   126,-32768,-32768,-32768,   126,
--32768,    38,    81,   126,    92,-32768,-32768,   111,-32768,-32768,
-    83,    85,-32768
+static const short yypact[] = {   131,
+   -24,-32768,-32768,-32768,-32768,     9,     7,   -14,   -13,    -9,
+   131,-32768,    21,-32768,-32768,    13,-32768,-32768,-32768,     2,
+     2,    23,-32768,-32768,-32768,-32768,-32768,-32768,-32768,     7,
+   114,-32768,     0,     0,     0,-32768,   -12,     1,-32768,     7,
+     8,    12,    14,    42,-32768,-32768,-32768,-32768,-32768,     7,
+     0,   132,     3,    22,    24,-32768,-32768,     2,   131,    15,
+    60,-32768,-32768,-32768,-32768,    60,-32768,-32768,-32768,-32768,
+-32768,-32768,-32768,-32768,     7,    32,    33,    34,    37,-32768,
+-32768,    60,    38,   131,    40,   131,    50,   131,-32768,   131,
+   131,-32768,-32768,-32768,   131,-32768,    43,    86,   131,    97,
+-32768,-32768,   116,-32768,-32768,    71,    76,-32768
 };
 
 static const short yypgoto[] = {-32768,
-   -29,   -11,-32768,-32768,-32768,-32768,    -6,    54,     7,-32768,
--32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,    27,-32768,
--32768,-32768,-32768,-32768,-32768,-32768
+   -53,   -11,-32768,-32768,-32768,-32768,-32768,    -6,   -19,-32768,
+-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,   -18,
+-32768,-32768,-32768,-32768,-32768,-32768,-32768
 };
 
 
-#define	YYLAST		158
+#define	YYLAST		163
 
 
-static const short yytable[] = {    33,
-    28,    20,    21,    22,    23,    24,    19,    20,    21,    22,
-    23,    24,    41,    42,    43,    44,    25,    26,    30,    31,
-    40,    32,    25,    26,    34,    41,    42,    43,    44,    47,
-    57,    35,    37,   -44,    27,    39,    49,    49,    49,    61,
-    27,    53,    60,    75,     1,     2,     3,     4,     5,     6,
-     7,     8,     9,    49,    10,    92,    93,    51,    52,    71,
-    95,    72,    58,    77,    98,    59,    84,    87,    73,    89,
-    76,    91,    96,    62,   -62,   -37,   -66,    86,    88,    90,
-    33,    33,   102,    33,   103,     0,    33,     1,     2,     3,
-     4,     5,     6,     7,     8,     9,     0,    10,     1,     2,
-     3,     4,     5,     6,     7,     8,     9,    74,    10,     0,
-     0,     0,     0,     0,     0,    97,     0,     1,     2,     3,
-     4,     5,     6,     7,     8,     9,    99,    10,    41,    42,
-    43,    44,     1,     2,     3,     4,     5,     6,     7,     8,
-     9,    45,    10,     0,     0,   100,    41,    42,    43,    44,
-    63,    64,    65,    66,    67,    68,     0,    69
+static const short yytable[] = {    36,
+    31,    42,    23,    24,    25,    26,    27,    18,    19,    23,
+    24,    25,    26,    27,    22,    54,    55,    28,    29,    56,
+    57,    33,    34,    44,    28,    29,    35,    37,    38,    43,
+    51,    40,    67,    61,   -49,    30,    97,    98,    79,    76,
+    62,   100,    30,    66,    63,   103,    64,    80,    81,     1,
+     2,     3,     4,     5,     6,     7,     8,     9,    77,    10,
+    78,    45,    46,    47,    48,   -66,   -42,   -70,    82,    89,
+   107,    91,    92,    93,    94,   108,    96,   101,    65,    45,
+    46,    47,    48,    95,     0,    36,    36,     0,    36,     0,
+     0,    36,     1,     2,     3,     4,     5,     6,     7,     8,
+     9,     0,    10,     1,     2,     3,     4,     5,     6,     7,
+     8,     9,     0,    10,     0,     0,     0,     0,     0,     0,
+   102,     0,     1,     2,     3,     4,     5,     6,     7,     8,
+     9,   104,    10,    45,    46,    47,    48,     1,     2,     3,
+     4,     5,     6,     7,     8,     9,    49,    10,     0,     0,
+   105,    45,    46,    47,    48,    68,    69,    70,    71,    72,
+    73,     0,    74
 };
 
 static const short yycheck[] = {    11,
-     7,     3,     4,     5,     6,     7,     6,     3,     4,     5,
-     6,     7,    20,    21,    22,    23,    18,    19,    36,    36,
-    27,    36,    18,    19,     7,    20,    21,    22,    23,    31,
-    37,    16,    30,    34,    36,     7,    30,    31,    32,    46,
-    36,    33,    37,    55,     7,     8,     9,    10,    11,    12,
-    13,    14,    15,    47,    17,    85,    86,    31,    32,    37,
-    90,    37,    33,    70,    94,    33,    33,    79,    37,    81,
-    34,    83,    35,    47,    34,    34,    34,    34,    34,    34,
-    92,    93,     0,    95,     0,    -1,    98,     7,     8,     9,
-    10,    11,    12,    13,    14,    15,    -1,    17,     7,     8,
-     9,    10,    11,    12,    13,    14,    15,    54,    17,    -1,
-    -1,    -1,    -1,    -1,    -1,    35,    -1,     7,     8,     9,
-    10,    11,    12,    13,    14,    15,    35,    17,    20,    21,
-    22,    23,     7,     8,     9,    10,    11,    12,    13,    14,
-    15,    33,    17,    -1,    -1,    35,    20,    21,    22,    23,
-    24,    25,    26,    27,    28,    29,    -1,    31
+     7,    21,     3,     4,     5,     6,     7,    32,    33,     3,
+     4,     5,     6,     7,     6,    34,    35,    18,    19,    32,
+    33,    36,    36,    30,    18,    19,    36,     7,    16,     7,
+    31,    30,    51,    40,    34,    36,    90,    91,    58,    37,
+    33,    95,    36,    50,    33,    99,    33,    59,    34,     7,
+     8,     9,    10,    11,    12,    13,    14,    15,    37,    17,
+    37,    20,    21,    22,    23,    34,    34,    34,    75,    33,
+     0,    34,    84,    34,    86,     0,    88,    35,    37,    20,
+    21,    22,    23,    34,    -1,    97,    98,    -1,   100,    -1,
+    -1,   103,     7,     8,     9,    10,    11,    12,    13,    14,
+    15,    -1,    17,     7,     8,     9,    10,    11,    12,    13,
+    14,    15,    -1,    17,    -1,    -1,    -1,    -1,    -1,    -1,
+    35,    -1,     7,     8,     9,    10,    11,    12,    13,    14,
+    15,    35,    17,    20,    21,    22,    23,     7,     8,     9,
+    10,    11,    12,    13,    14,    15,    33,    17,    -1,    -1,
+    35,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+    29,    -1,    31
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
 #line 3 "bison.simple"
@@ -845,7 +853,7 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 63 "wordlang.y"
+#line 64 "wordlang.y"
 {
         //printf("Program is syntactically correct.\n");
         yyval.nodeType.nd = AST_mkNode(yyvsp[0].nodeType.nd, NULL, "start");
@@ -853,42 +861,43 @@ case 1:
 ;
     break;}
 case 2:
-#line 69 "wordlang.y"
+#line 70 "wordlang.y"
 {
             yyval.nodeType.nd = yyvsp[0].nodeType.nd;
         ;
     break;}
 case 3:
-#line 72 "wordlang.y"
+#line 73 "wordlang.y"
 { 
             yyval.nodeType.nd = AST_mkNode(yyvsp[-1].nodeType.nd, yyvsp[0].nodeType.nd, "statement_list");
             //printf("statement_list\n");
         ;
     break;}
 case 4:
-#line 79 "wordlang.y"
+#line 80 "wordlang.y"
 { 
                 yyval.nodeType.nd = yyvsp[0].nodeType.nd;
                 //printf("declaration\n");
          ;
     break;}
 case 5:
-#line 83 "wordlang.y"
+#line 84 "wordlang.y"
 {codeGen_id(yyvsp[0].nodeType.name);;
     break;}
 case 6:
-#line 83 "wordlang.y"
+#line 84 "wordlang.y"
 {
                 //printf("start assignment\n");
                 checkDeclaration(yyvsp[-3].nodeType.name);
                 yyvsp[-3].nodeType.varType = getDataType(yyvsp[-3].nodeType.name);
                 checkType(yyvsp[-3].nodeType.varType, yyvsp[-1].nodeType.varType);                
                 yyvsp[-3].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-3].nodeType.name);
-                yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-3].nodeType.name);                
+                yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-3].nodeType.name);
+                codeGen_punc(yyvsp[0].nodeType.name);                
          ;
     break;}
 case 7:
-#line 91 "wordlang.y"
+#line 93 "wordlang.y"
 {         
             checkDeclaration(yyvsp[-1].nodeType.name);
             yyvsp[-2].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-2].nodeType.name);
@@ -900,7 +909,7 @@ case 7:
         ;
     break;}
 case 8:
-#line 100 "wordlang.y"
+#line 102 "wordlang.y"
 {
             yyval.nodeType.nd = exprRoot = AST_mkNode(NULL, yyvsp[-1].nodeType.nd, yyvsp[-2].nodeType.name);
             char* expr = strdup(codeGen_expression(exprRoot->right));
@@ -909,45 +918,45 @@ case 8:
          ;
     break;}
 case 9:
-#line 106 "wordlang.y"
+#line 108 "wordlang.y"
 { 
                 yyval.nodeType.nd = yyvsp[0].nodeType.nd;
                 //printf("conditional_statement\n");
           ;
     break;}
 case 10:
-#line 110 "wordlang.y"
+#line 112 "wordlang.y"
 { 
                 yyval.nodeType.nd = yyvsp[0].nodeType.nd;
                 //printf("loop_statement\n");
           ;
     break;}
 case 11:
-#line 117 "wordlang.y"
+#line 119 "wordlang.y"
 { insert_type(yytext); 
                     //printf("char\n");                    
 ;
     break;}
 case 12:
-#line 120 "wordlang.y"
+#line 122 "wordlang.y"
 { insert_type(yytext); 
                 //printf("int\n");
         ;
     break;}
 case 13:
-#line 123 "wordlang.y"
+#line 125 "wordlang.y"
 { insert_type(yytext); 
                 //printf("word\n");
         ;
     break;}
 case 14:
-#line 126 "wordlang.y"
+#line 128 "wordlang.y"
 { insert_type(yytext); 
                 //printf("sentence\n");
         ;
     break;}
 case 15:
-#line 131 "wordlang.y"
+#line 133 "wordlang.y"
 {
                 isValidVarName(yyvsp[-1].nodeType.name);
                 checkMultiDeclaration(yyvsp[-1].nodeType.name);
@@ -957,15 +966,31 @@ case 15:
                 yyval.nodeType.nd = AST_mkNode(yyvsp[-1].nodeType.nd, NULL, "declaration");
                 codeGen_declare(yyvsp[-1].nodeType.name, dataType);
                 codeGen_initVar(dataType);
+                codeGen_punc(yyvsp[0].nodeType.name);
                 //printf("declaration without assignment\n");
              ;
     break;}
 case 16:
-#line 142 "wordlang.y"
-{codeGen_declare(yyvsp[0].nodeType.name, dataType);;
+#line 145 "wordlang.y"
+{
+                isValidVarName(yyvsp[-1].nodeType.name);
+                checkMultiDeclaration(yyvsp[-1].nodeType.name);
+                storeInSymbolTable(yyvsp[-1].nodeType.name, VARIABLE, dataType, yylineno, "");
+                yyvsp[-1].nodeType.varType = dataType;
+                yyvsp[-1].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-1].nodeType.name);
+                yyval.nodeType.nd = AST_mkNode(yyvsp[-1].nodeType.nd, yyvsp[0].nodeType.nd, "declaration");
+                codeGen_declare(yyvsp[-1].nodeType.name, dataType);
+                codeGen_initVar(dataType);
+                codeGen_punc(yyvsp[0].nodeType.name);
+                //printf("declaration without assignment\n");
+             ;
     break;}
 case 17:
-#line 142 "wordlang.y"
+#line 157 "wordlang.y"
+{codeGen_declare(yyvsp[0].nodeType.name, dataType);;
+    break;}
+case 18:
+#line 157 "wordlang.y"
 {
                 isValidVarName(yyvsp[-3].nodeType.name);
                 checkMultiDeclaration(yyvsp[-3].nodeType.name);
@@ -974,56 +999,111 @@ case 17:
                 yyvsp[-3].nodeType.varType = dataType;
                 yyvsp[-3].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-3].nodeType.name);
                 yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[-1].nodeType.nd, "declaration");
+                codeGen_punc(yyvsp[0].nodeType.name);
                 //printf("declaration with assignment\n");
             ;
     break;}
-case 18:
-#line 155 "wordlang.y"
-{ codeGen_punc(yyvsp[0].nodeType.name);;
-    break;}
 case 19:
-#line 156 "wordlang.y"
-{codeGen_punc(yyvsp[0].nodeType.name);;
+#line 168 "wordlang.y"
+{
+                isValidVarName(yyvsp[-1].nodeType.name);
+                checkMultiDeclaration(yyvsp[-1].nodeType.name);
+                storeInSymbolTable(yyvsp[-1].nodeType.name, VARIABLE, dataType, yylineno, "");
+                yyvsp[-1].nodeType.varType = dataType;
+                yyvsp[-1].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-1].nodeType.name);
+                yyval.nodeType.nd = AST_mkNode(yyvsp[-1].nodeType.nd, yyvsp[0].nodeType.nd, "declaration");
+                char* result = strdup("");
+                if(dataType != INT && dataType != CHAR)
+                    result = strdup("*");
+                strcat(result, yyvsp[-1].nodeType.name);
+                codeGen_id(result);
+                codeGen_initVar(dataType);
+                codeGen_punc(yyvsp[0].nodeType.name);                
+                //printf("declaration without assignment\n");                
+            ;
     break;}
 case 20:
-#line 157 "wordlang.y"
-{codeGen_punc(yyvsp[0].nodeType.name);;
+#line 184 "wordlang.y"
+{codeGen_id(yyvsp[0].nodeType.name);;
     break;}
 case 21:
-#line 158 "wordlang.y"
-{codeGen_punc(yyvsp[0].nodeType.name);;
+#line 184 "wordlang.y"
+{
+                checkDeclaration(yyvsp[-3].nodeType.name);
+                yyvsp[-3].nodeType.varType = getDataType(yyvsp[-3].nodeType.name);
+                checkType(yyvsp[-3].nodeType.varType, yyvsp[-1].nodeType.varType);                
+                yyvsp[-3].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-3].nodeType.name);
+                yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-3].nodeType.name);
+                codeGen_punc(yyvsp[0].nodeType.name);
+            ;
     break;}
 case 22:
-#line 159 "wordlang.y"
-{codeGen_punc(yyvsp[0].nodeType.name);;
+#line 192 "wordlang.y"
+{
+                isValidVarName(yyvsp[-1].nodeType.name);
+                checkMultiDeclaration(yyvsp[-1].nodeType.name);
+                storeInSymbolTable(yyvsp[-1].nodeType.name, VARIABLE, dataType, yylineno, "");
+                yyvsp[-1].nodeType.varType = dataType;
+                yyvsp[-1].nodeType.nd = AST_mkNode(NULL, NULL, yyvsp[-1].nodeType.name);
+                yyval.nodeType.nd = AST_mkNode(yyvsp[-1].nodeType.nd, NULL, "declaration");
+                char* result = strdup("");
+                if(dataType != INT && dataType != CHAR)
+                    result = strdup("*");
+                strcat(result, yyvsp[-1].nodeType.name);
+                codeGen_id(result);
+                codeGen_initVar(dataType);
+                codeGen_punc(yyvsp[0].nodeType.name);
+                //printf("declaration without assignment\n");
+            ;
     break;}
 case 23:
-#line 160 "wordlang.y"
-{codeGen_punc(yyvsp[0].nodeType.name);;
+#line 211 "wordlang.y"
+{ codeGen_punc(yyvsp[0].nodeType.name);;
     break;}
 case 24:
-#line 163 "wordlang.y"
+#line 212 "wordlang.y"
+{codeGen_punc(yyvsp[0].nodeType.name);;
+    break;}
+case 25:
+#line 213 "wordlang.y"
+{codeGen_punc(yyvsp[0].nodeType.name);;
+    break;}
+case 26:
+#line 214 "wordlang.y"
+{codeGen_punc(yyvsp[0].nodeType.name);;
+    break;}
+case 27:
+#line 215 "wordlang.y"
+{codeGen_punc(yyvsp[0].nodeType.name);;
+    break;}
+case 28:
+#line 216 "wordlang.y"
+{codeGen_punc(yyvsp[0].nodeType.name);;
+    break;}
+case 29:
+#line 219 "wordlang.y"
 {                
                 yyval.nodeType.varType = yyvsp[-1].nodeType.varType;
                 yyval.nodeType.nd = yyvsp[-1].nodeType.nd;
             ;
     break;}
-case 25:
-#line 167 "wordlang.y"
+case 30:
+#line 223 "wordlang.y"
 {                                           
                 yyval.nodeType.varType = checkExprDataType(yyvsp[-2].nodeType.varType, yyvsp[0].nodeType.varType, yyvsp[-1].nodeType.name);     
                 yyval.nodeType.nd = AST_mkNode(yyvsp[-2].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-1].nodeType.name);                                
             ;
     break;}
-case 26:
-#line 171 "wordlang.y"
+case 31:
+#line 227 "wordlang.y"
 {
                 yyval.nodeType.varType = yyvsp[0].nodeType.varType;
                 yyval.nodeType.nd = yyvsp[0].nodeType.nd;
+                yyval.nodeType.name = yyvsp[0].nodeType.name;
             ;
     break;}
-case 27:
-#line 178 "wordlang.y"
+case 32:
+#line 235 "wordlang.y"
 {    
                 yyval.nodeType.varType = yyvsp[0].nodeType.varType;
                 yyval.nodeType.nd = exprRoot = AST_mkNode(yyvsp[-1].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-1].nodeType.name);
@@ -1031,8 +1111,8 @@ case 27:
                 codeGen_assign(expr, yyvsp[0].nodeType.varType);
 ;
     break;}
-case 28:
-#line 186 "wordlang.y"
+case 33:
+#line 243 "wordlang.y"
 {        
         storeInSymbolTable(yyvsp[0].nodeType.name, CONSTANT, INT, yylineno, yytext);
         yyval.nodeType.varType = INT;
@@ -1041,8 +1121,8 @@ case 28:
         //printf("int\n");
     ;
     break;}
-case 29:
-#line 193 "wordlang.y"
+case 34:
+#line 250 "wordlang.y"
 {
         storeInSymbolTable(yyvsp[0].nodeType.name, CONSTANT, CHAR, yylineno, yytext);
         yyval.nodeType.varType = CHAR;
@@ -1051,8 +1131,8 @@ case 29:
         //printf("char\n");
     ;
     break;}
-case 30:
-#line 200 "wordlang.y"
+case 35:
+#line 257 "wordlang.y"
 { 
         storeInSymbolTable(yyvsp[0].nodeType.name, CONSTANT, WORD, yylineno, yyvsp[0].nodeType.wordVal);
         yyval.nodeType.varType = WORD;
@@ -1061,8 +1141,8 @@ case 30:
         //printf("word\n");
     ;
     break;}
-case 31:
-#line 207 "wordlang.y"
+case 36:
+#line 264 "wordlang.y"
 {
          printf("sentence\n"); 
          storeInSymbolTable(yyvsp[0].nodeType.name, CONSTANT, SENTENCE, yylineno, yyvsp[0].nodeType.wordVal);
@@ -1071,8 +1151,8 @@ case 31:
          yyval.nodeType.name = strdup(yyvsp[0].nodeType.name);
     ;
     break;}
-case 32:
-#line 214 "wordlang.y"
+case 37:
+#line 271 "wordlang.y"
 {
             checkDeclaration(yyvsp[0].nodeType.name);
             yyval.nodeType.varType = getDataType(yyvsp[0].nodeType.name);
@@ -1082,8 +1162,8 @@ case 32:
             //printf("identifier\n");
     ;
     break;}
-case 33:
-#line 222 "wordlang.y"
+case 38:
+#line 279 "wordlang.y"
 {
             storeInSymbolTable(yyvsp[0].nodeType.name, KEYWORD, INT, yylineno, "1");
             yyval.nodeType.varType = INT;
@@ -1092,8 +1172,8 @@ case 33:
             //printf("true\n");
           ;
     break;}
-case 34:
-#line 229 "wordlang.y"
+case 39:
+#line 286 "wordlang.y"
 {
             storeInSymbolTable(yyvsp[0].nodeType.name, KEYWORD, INT, yylineno, "0");
             yyval.nodeType.varType = INT;
@@ -1102,16 +1182,16 @@ case 34:
             //printf("false\n");
         ;
     break;}
-case 37:
-#line 243 "wordlang.y"
-{printf("my cond\n");codeGen_if(condExpr);;
+case 42:
+#line 300 "wordlang.y"
+{codeGen_if(condExpr);;
     break;}
-case 38:
-#line 243 "wordlang.y"
+case 43:
+#line 300 "wordlang.y"
 {codeGen_punc(yyvsp[0].nodeType.name);;
     break;}
-case 39:
-#line 243 "wordlang.y"
+case 44:
+#line 300 "wordlang.y"
 {
         yyval.nodeType.nd = AST_mkNode(yyvsp[-6].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-8].nodeType.name);
         strcpy(condExpr, "");
@@ -1119,91 +1199,85 @@ case 39:
         //printf("if with brackets\n");
      ;
     break;}
-case 40:
-#line 249 "wordlang.y"
-{printf("my cond\n");codeGen_if(condExpr);;
+case 45:
+#line 306 "wordlang.y"
+{codeGen_if(condExpr);;
     break;}
-case 41:
-#line 249 "wordlang.y"
+case 46:
+#line 306 "wordlang.y"
 { 
         yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-5].nodeType.name);
         strcpy(condExpr, "");
         //printf("if\n");
      ;
     break;}
-case 42:
-#line 255 "wordlang.y"
+case 47:
+#line 312 "wordlang.y"
 {codeGen_else();;
     break;}
-case 43:
-#line 255 "wordlang.y"
+case 48:
+#line 312 "wordlang.y"
 { 
         yyval.nodeType.nd = AST_mkNode(NULL, yyvsp[0].nodeType.nd, "else");
         //printf("else\n");
  ;
     break;}
-case 44:
-#line 259 "wordlang.y"
+case 49:
+#line 316 "wordlang.y"
 {codeGen_else();;
     break;}
-case 45:
-#line 259 "wordlang.y"
+case 50:
+#line 316 "wordlang.y"
 {codeGen_punc(yyvsp[0].nodeType.name);;
     break;}
-case 46:
-#line 259 "wordlang.y"
+case 51:
+#line 316 "wordlang.y"
 {
         yyval.nodeType.nd = AST_mkNode(NULL, yyvsp[-1].nodeType.nd, "else");
         codeGen_punc(yyvsp[0].nodeType.name);
         //printf("else with brackets\n");
      ;
     break;}
-case 47:
-#line 266 "wordlang.y"
-{
-                yyval.nodeType.nd = yyvsp[0].nodeType.nd;
-                yyval.nodeType.varType = yyvsp[0].nodeType.varType;
-                strcpy(condExpr, yyvsp[0].nodeType.name);
-                //printf("value-only condition\n");
-            ;
-    break;}
-case 48:
-#line 272 "wordlang.y"
+case 52:
+#line 323 "wordlang.y"
 {
                 checkType(yyvsp[-2].nodeType.varType, yyvsp[0].nodeType.varType);
                 char* expr1 = strdup(codeGen_expression(yyvsp[-2].nodeType.nd));
                 codeGen_clearWorkTree();
                 char* expr2 = strdup(codeGen_expression(yyvsp[0].nodeType.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr, strdup(codeGen_condition(expr1, yyvsp[-2].nodeType.varType, expr2, yyvsp[0].nodeType.varType, yyvsp[-1].nodeType.name)));
                 yyval.nodeType.varType = INT;
                 yyval.nodeType.nd = AST_mkNode(yyvsp[-2].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-1].nodeType.name);                                
             ;
     break;}
-case 49:
-#line 281 "wordlang.y"
+case 53:
+#line 333 "wordlang.y"
 {
                 checkType(yyvsp[0].nodeType.varType, INT);
                 yyval.nodeType.varType = yyvsp[0].nodeType.varType;
                 char* expr1 = strdup(codeGen_expression(yyvsp[0].nodeType.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr, strdup(codeGen_condition(expr1, yyvsp[-1].nodeType.varType, NULL, EMPTY, yyvsp[-1].nodeType.name)));
                 yyval.nodeType.nd = AST_mkNode(NULL, yyvsp[0].nodeType.nd, yyvsp[-1].nodeType.name);
           ;
     break;}
-case 50:
-#line 288 "wordlang.y"
+case 54:
+#line 341 "wordlang.y"
 {                
                 char* expr1 = strdup(codeGen_expression(yyvsp[0].nodeType.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr ,strdup(codeGen_condition(expr1, yyvsp[0].nodeType.varType, NULL, EMPTY, NULL)));
                 yyval.nodeType.varType = yyvsp[0].nodeType.varType;
                 yyval.nodeType.nd = yyvsp[0].nodeType.nd;
           ;
     break;}
-case 62:
-#line 309 "wordlang.y"
+case 66:
+#line 363 "wordlang.y"
 {codeGen_loop(condExpr);;
     break;}
-case 63:
-#line 309 "wordlang.y"
+case 67:
+#line 363 "wordlang.y"
 {    
                     yyval.nodeType.nd = AST_mkNode(yyvsp[-5].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-7].nodeType.name);
                     strcpy(condExpr, "");
@@ -1211,12 +1285,12 @@ case 63:
                     //printf("loop\n");                    
                 ;
     break;}
-case 64:
-#line 315 "wordlang.y"
+case 68:
+#line 369 "wordlang.y"
 {codeGen_loop(condExpr);;
     break;}
-case 65:
-#line 315 "wordlang.y"
+case 69:
+#line 369 "wordlang.y"
 {                 
                     yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-5].nodeType.name);
                     strcpy(condExpr, "");                    
@@ -1224,12 +1298,12 @@ case 65:
                     //printf("loop\n");
                 ;
     break;}
-case 66:
-#line 321 "wordlang.y"
+case 70:
+#line 375 "wordlang.y"
 {codeGen_while(condExpr);;
     break;}
-case 67:
-#line 321 "wordlang.y"
+case 71:
+#line 375 "wordlang.y"
 {
                     yyval.nodeType.nd = AST_mkNode(yyvsp[-5].nodeType.nd, yyvsp[-1].nodeType.nd, yyvsp[-7].nodeType.name);
                     strcpy(condExpr, "");
@@ -1237,12 +1311,12 @@ case 67:
                     //printf("while\n");
                 ;
     break;}
-case 68:
-#line 327 "wordlang.y"
+case 72:
+#line 381 "wordlang.y"
 {codeGen_while(condExpr);;
     break;}
-case 69:
-#line 328 "wordlang.y"
+case 73:
+#line 382 "wordlang.y"
 { 
                     yyval.nodeType.nd = AST_mkNode(yyvsp[-3].nodeType.nd, yyvsp[0].nodeType.nd, yyvsp[-5].nodeType.name);
                     strcpy(condExpr, "");
@@ -1472,28 +1546,29 @@ yyerrhandle:
     }
   return 1;
 }
-#line 336 "wordlang.y"
+#line 390 "wordlang.y"
 
 
 void yyerror(const char* s) {
-    //printf("at line %d: Error; %s\n", yylineno, s);
+    printf("at line %d: Error; %s\n", yylineno, s);
     exit(1);
 }
 
 int main(int argc, char* argv[]) {
     static int WriteOnce = 0;
-    if (argc < 2) {
-        printf("Usage: %s <input_file>\n", argv[0]);
+    if (argc < 3) {
+        printf("Usage: %s <input_wordlang_file> <c_output_file>\n", argv[0]);
         return 1;
     }
-
-    FILE* inputFile = fopen(argv[1], "r");
-    if (inputFile == NULL) {
-        //printf("Error opening input file.\n");
+    strcpy(outputFile, argv[2]);
+    FILE* inputFile = fopen(argv[1], "r");    
+    if (inputFile == NULL || outputFile == NULL) {
+        printf("Error opening input file.\n");
         return 1;
     }
 
     yyin = inputFile;
+    
     if(WriteOnce == 0){
         codeGen_Init();
         symbolTable_init();

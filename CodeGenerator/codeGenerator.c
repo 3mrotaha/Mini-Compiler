@@ -6,19 +6,21 @@
 #include "../SymbolTable/symbolTable.h"
 #include "../SymanticAnalyzer/symanticAnalyzer.h"
 
+char outputFile[50] = {0};
 FILE* C_src = NULL;
 ASTnode_t *exprRoot = NULL, *exprCurr = NULL;
 char finalExpr[500];
 
 void openSrcFile(void){    
     if(C_src == NULL){
-        C_src = fopen("C_src.c", "a+");
+        C_src = fopen(outputFile, "a+");
         if(C_src == NULL){
             //printf("Error: Couldn't open file C_src.c\n");
             exit(1);
         }
     }
 }
+
 void closeSrcFile(void){
     if(C_src != NULL){
         fclose(C_src);
@@ -66,7 +68,7 @@ void clearTree(ASTnode_t* root){
 
 void codeGen_Init(void){
     if(C_src == NULL){
-        C_src = fopen("C_src.c", "w");
+        C_src = fopen(outputFile, "w");
         if(C_src == NULL){
             //printf("Error: Couldn't open file C_src.c\n");
             exit(1);
@@ -105,56 +107,60 @@ void codeGen_id(char* id){
 
 void codeGen_clearWorkTree(void){
     //printf("clearing work tree\n");
-    clearTree(exprRoot);
+    clearTree(exprRoot);    
     strcpy(finalExpr, "");
+    exprRoot = NULL;
 }
 
 char* codeGen_condition(char *expr1, DataType_t dt1, char *expr2, DataType_t dt2, char* op){        
     if(expr2 != NULL){
         if(dt1 == WORD && dt1 == WORD){
-            sprintf(finalExpr, "strcmp(%s, %s)", expr1, expr2);
-            if(strcmp(op, "<") == 0){
-                sprintf(finalExpr, "%s < 0", expr1);
-            }
-            else if(strcmp(op, ">") == 0){
-                sprintf(finalExpr, "%s > 0", expr1);
-            }
-            else if(strcmp(op, "<=") == 0){
-                sprintf(finalExpr, "%s <= 0", expr1);
-            }
-            else if(strcmp(op, ">=") == 0){
-                sprintf(finalExpr, "%s >= 0", expr1);
-            }
-            else if(strcmp(op, "==") == 0){
-                sprintf(finalExpr, "%s == 0", expr1);
-            }
-            else if(strcmp(op, "!=") == 0){
-                sprintf(finalExpr, "%s != 0", expr1);
-            }
+            sprintf(finalExpr, "strcmp(%s, %s) %s 0", expr1, expr2, op);
+            // if(strcmp(op, "<") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) < 0", expr1);
+            // }
+            // else if(strcmp(op, ">") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) > 0", expr1);
+            // }
+            // else if(strcmp(op, "<=") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) <= 0", expr1);
+            // }
+            // else if(strcmp(op, ">=") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) >= 0", expr1);
+            // }
+            // else if(strcmp(op, "==") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) == 0", expr1);
+            // }
+            // else if(strcmp(op, "!=") == 0){
+            //     sprintf(finalExpr, "strcmp(%s, %s) != 0", expr1);
+            // }
             return finalExpr;
         }else if(dt1 == SENTENCE && dt1 == SENTENCE){
-            sprintf(finalExpr, "strcmp(%s, %s)", expr1, expr2);
-            if(strcmp(op, "<") == 0){
-                sprintf(finalExpr, "%s < 0", expr1);
-            }
-            else if(strcmp(op, ">") == 0){
-                sprintf(finalExpr, "%s > 0", expr1);
-            }
-            else if(strcmp(op, "<=") == 0){
-                sprintf(finalExpr, "%s <= 0", expr1);
-            }
-            else if(strcmp(op, ">=") == 0){
-                sprintf(finalExpr, "%s >= 0", expr1);
-            }
-            else if(strcmp(op, "==") == 0){
-                sprintf(finalExpr, "%s == 0", expr1);
-            }
-            else if(strcmp(op, "!=") == 0){
-                sprintf(finalExpr, "%s != 0", expr1);
-            }
+            sprintf(finalExpr, "strcmp(%s, %s) %s 0", expr1, expr2, op);
+            // if(strcmp(op, "<") == 0){
+            // }
+            // else if(strcmp(op, ">") == 0){
+            //     sprintf(finalExpr, "%s > 0", expr1);
+            // }
+            // else if(strcmp(op, "<=") == 0){
+            //     sprintf(finalExpr, "%s <= 0", expr1);
+            // }
+            // else if(strcmp(op, ">=") == 0){
+            //     sprintf(finalExpr, "%s >= 0", expr1);
+            // }
+            // else if(strcmp(op, "==") == 0){
+            //     sprintf(finalExpr, "%s == 0", expr1);
+            // }
+            // else if(strcmp(op, "!=") == 0){
+            //     sprintf(finalExpr, "%s != 0", expr1);
+            // }
             return finalExpr;
         }else{
-            sprintf(finalExpr, "%s %s %s", expr1, op, expr2);
+            if(dt1 == CHAR && dt2 == CHAR)
+                sprintf(finalExpr, "(%s)[0] %s (%s)[0]", expr1, op, expr2);
+            else
+                sprintf(finalExpr, "%s %s %s", expr1, op, expr2);
+
             return finalExpr;
         }
     }
@@ -222,19 +228,19 @@ void codeGen_initVar(DataType_t type){
     {
         case INT:
             //printf("generating code for init: int\n");
-            fprintf(C_src, "= 0;\n");
+            fprintf(C_src, "= 0");
         break;
         case SENTENCE:
             //printf("generating code for init: sentence\n");
-            fprintf(C_src, "= strdup(\"\");\n");
+            fprintf(C_src, "= strdup(\"\\n\")");
         break;
         case CHAR:
             //printf("generating code for init: char\n");
-            fprintf(C_src, "= '\\0';\n");
+            fprintf(C_src, "= '\\0'");
         break;
         case WORD:
             //printf("generating code for init: word\n");
-            fprintf(C_src, "= strdup(\"\");\n");
+            fprintf(C_src, "= strdup(\"\")");
         break;
     }
     closeSrcFile();
@@ -246,16 +252,16 @@ void codeGen_assign(char* expression, DataType_t type){
     switch (type)
     {
         case INT:
-            fprintf(C_src, "= %s;\n", expression);
+            fprintf(C_src, "= %s", expression);
         break;
         case SENTENCE:
-            fprintf(C_src, "= strdup(%s);\n", expression);
+            fprintf(C_src, "= strdup(%s)", expression);
         break;
         case CHAR:
-            fprintf(C_src, "= (%s)[0];\n", expression);
+            fprintf(C_src, "= (%s)[0]", expression);
         break;
         case WORD:
-            fprintf(C_src, "= strdup(%s);\n", expression);
+            fprintf(C_src, "= strdup(%s)", expression);
         break;
     }
     closeSrcFile();
@@ -290,7 +296,7 @@ char* codeGen_expression(ASTnode_t *root){
         strcat(finalExpr, "getSum(");
     }
     else if(strcmp(root->token, "-") == 0){
-        if(getDataType(root->left->token) == INT && getDataType(root->right->token) == INT){
+        if(getDataType(root->left->token) == INT || getDataType(root->right->token) == INT){
             strcat(finalExpr, "getSub(");
         }
         else{
@@ -348,8 +354,8 @@ void codeGen_if(char* condition){
     openSrcFile();
     //printf("generating code for if: %s\n", condition);
     fprintf(C_src, "if(%s)\n", condition);
-    codeGen_clearWorkTree();
     closeSrcFile();
+    codeGen_clearWorkTree();
 }
 
 void codeGen_else(void){
@@ -357,6 +363,7 @@ void codeGen_else(void){
     //printf("generating code for else\n");
     fprintf(C_src, "else\n");
     closeSrcFile();
+    codeGen_clearWorkTree();
 }
 
 void codeGen_while(char* condition){    
@@ -394,14 +401,6 @@ void codeGen_helpersPrototypes(void){
     fprintf(C_src, "char* getConcat(char* a, char* b);\n");
     fprintf(C_src, "char* strRemove(char* str1, char* str2);\n");
     fprintf(C_src, "char* strGetIndex(char* str, int index);\n");
-    fprintf(C_src," char charRemove(char ch1, char ch2);\n");
-    fprintf(C_src, "char* stringCharRemove(char* str1, char ch);\n");
-    fprintf(C_src,"int getLessThan(char*, char*);\n");
-    fprintf(C_src,"int getGreaterThan(char*, char*);\n");
-    fprintf(C_src,"int getLessThanOrEqual(char*, char*);\n");
-    fprintf(C_src,"int getGreaterThanOrEqual(char*, char*);\n");
-    fprintf(C_src,"int getEqual(char*, char*);\n");
-    fprintf(C_src, "int getNotEqual(char*, char*);\n");
     closeSrcFile();
 }
 
@@ -526,32 +525,8 @@ fprintf(C_src, "}\n");
     fprintf(C_src, "        result[1] = '\\0';\n");
     fprintf(C_src, "        return result;\n");
     fprintf(C_src, "    }\n");
-    fprintf(C_src, "        return NULL;\n");
+    fprintf(C_src, "        return \"\\0\";\n");
     fprintf(C_src, "    }\n");
-    closeSrcFile();
-    openSrcFile();
-    fprintf(C_src, "int getLessThan(char* str1, char* str2) {\n");
-    fprintf(C_src, "    return strcmp(str1, str2) < 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
-
-    fprintf(C_src, "int getGreaterThan(char* str1, char* str2) {\n");
-    fprintf(C_src, "    return strcmp(str1, str2) > 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
-
-    fprintf(C_src, "int getLessThanOrEqual(char* str1, char* str2) {\n");
-    fprintf(C_src, "    return strcmp(str1, str2) <= 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
-
-    fprintf(C_src, "int getGreaterThanOrEqual(char* str1, char* str2) {\n");
-    fprintf(C_src, "    return strcmp(str1, str2) >= 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
-
-    fprintf(C_src, "int getEqual(char* str1, char* str2) {\n");
-    fprintf(C_src, "    return strcmp(str1, str2) == 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
-    fprintf(C_src, "int getNotEqual(char* str1, char* str2) {\n");
-    fprintf(C_src, "       return strcmp(str1, str2) != 0 ? 1 : 0;\n");
-    fprintf(C_src, "}\n");
     closeSrcFile();
 }
 

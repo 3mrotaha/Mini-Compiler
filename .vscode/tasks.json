@@ -7,7 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}\\C_src.c",
+                "${workspaceFolder}\\outPut.c",
                 "-o",
                 "${workspaceFolder}\\out.exe"
             ],

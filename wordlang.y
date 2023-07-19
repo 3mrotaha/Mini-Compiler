@@ -16,6 +16,7 @@ extern int yylineno;
 int yydebug = 1;
 FILE* file;
 int tempCount = 0;
+extern char outputFile[50];
 extern DataType_t dataType;
 extern ASTnode_t *root;
 extern ASTnode_t *exprRoot;
@@ -50,7 +51,7 @@ void yyerror(const char* s);
 
 %start program
 
-%right '(' ')'
+%nonassoc  '(' ')'
 %left GET
 %left CONCAT
 %left ADD REMOVE
@@ -86,7 +87,8 @@ statement: declaration   {
                 $1.varType = getDataType($1.name);
                 checkType($1.varType, $3.varType);                
                 $1.nd = AST_mkNode(NULL, NULL, $1.name);
-                $$.nd = AST_mkNode($1.nd, $3.nd, $1.name);                
+                $$.nd = AST_mkNode($1.nd, $3.nd, $1.name);
+                codeGen_punc($4.name);                
          }
          | INPUT SENTENCE_CONSTANT IDENTIFIER SEMI_COLON {         
             checkDeclaration($3.name);
@@ -137,6 +139,19 @@ declaration: datatype IDENTIFIER SEMI_COLON {
                 $$.nd = AST_mkNode($2.nd, NULL, "declaration");
                 codeGen_declare($2.name, dataType);
                 codeGen_initVar(dataType);
+                codeGen_punc($3.name);
+                //printf("declaration without assignment\n");
+             }
+            | datatype IDENTIFIER COMMA {
+                isValidVarName($2.name);
+                checkMultiDeclaration($2.name);
+                storeInSymbolTable($2.name, VARIABLE, dataType, yylineno, "");
+                $2.varType = dataType;
+                $2.nd = AST_mkNode(NULL, NULL, $2.name);
+                $$.nd = AST_mkNode($2.nd, $3.nd, "declaration");
+                codeGen_declare($2.name, dataType);
+                codeGen_initVar(dataType);
+                codeGen_punc($3.name);
                 //printf("declaration without assignment\n");
              }
            | datatype IDENTIFIER {codeGen_declare($2.name, dataType);} assignment SEMI_COLON {
@@ -147,7 +162,48 @@ declaration: datatype IDENTIFIER SEMI_COLON {
                 $2.varType = dataType;
                 $2.nd = AST_mkNode(NULL, NULL, $2.name);
                 $$.nd = AST_mkNode($2.nd, $4.nd, "declaration");
+                codeGen_punc($5.name);
                 //printf("declaration with assignment\n");
+            }
+            |   IDENTIFIER COMMA {
+                isValidVarName($1.name);
+                checkMultiDeclaration($1.name);
+                storeInSymbolTable($1.name, VARIABLE, dataType, yylineno, "");
+                $1.varType = dataType;
+                $1.nd = AST_mkNode(NULL, NULL, $1.name);
+                $$.nd = AST_mkNode($1.nd, $2.nd, "declaration");
+                char* result = strdup("");
+                if(dataType != INT && dataType != CHAR)
+                    result = strdup("*");
+                strcat(result, $1.name);
+                codeGen_id(result);
+                codeGen_initVar(dataType);
+                codeGen_punc($2.name);                
+                //printf("declaration without assignment\n");                
+            }
+            |  IDENTIFIER {codeGen_id($1.name);} assignment SEMI_COLON {
+                checkDeclaration($1.name);
+                $1.varType = getDataType($1.name);
+                checkType($1.varType, $3.varType);                
+                $1.nd = AST_mkNode(NULL, NULL, $1.name);
+                $$.nd = AST_mkNode($1.nd, $3.nd, $1.name);
+                codeGen_punc($4.name);
+            }
+            | IDENTIFIER SEMI_COLON {
+                isValidVarName($1.name);
+                checkMultiDeclaration($1.name);
+                storeInSymbolTable($1.name, VARIABLE, dataType, yylineno, "");
+                $1.varType = dataType;
+                $1.nd = AST_mkNode(NULL, NULL, $1.name);
+                $$.nd = AST_mkNode($1.nd, NULL, "declaration");
+                char* result = strdup("");
+                if(dataType != INT && dataType != CHAR)
+                    result = strdup("*");
+                strcat(result, $1.name);
+                codeGen_id(result);
+                codeGen_initVar(dataType);
+                codeGen_punc($2.name);
+                //printf("declaration without assignment\n");
             }      
            ;
 
@@ -171,6 +227,7 @@ expression: OPEN_PAREN expression CLOSE_PAREN {
             | value {
                 $$.varType = $1.varType;
                 $$.nd = $1.nd;
+                $$.name = $1.name;
             }
 ;
           
@@ -240,13 +297,13 @@ conditional_statement: if_clause
     | if_clause else_clause
     ;
 
-if_clause: IF OPEN_PAREN condition CLOSE_PAREN {printf("my cond\n");codeGen_if(condExpr);} OPEN_BRACKET {codeGen_punc($6.name);} statement_list CLOSE_BRACKET {
+if_clause: IF OPEN_PAREN condition CLOSE_PAREN {codeGen_if(condExpr);} OPEN_BRACKET {codeGen_punc($6.name);} statement_list CLOSE_BRACKET {
         $$.nd = AST_mkNode($3.nd, $8.nd, $1.name);
         strcpy(condExpr, "");
         codeGen_punc($9.name);
         //printf("if with brackets\n");
      }
-    | IF OPEN_PAREN condition CLOSE_PAREN {printf("my cond\n");codeGen_if(condExpr);} statement { 
+    | IF OPEN_PAREN condition CLOSE_PAREN {codeGen_if(condExpr);} statement { 
         $$.nd = AST_mkNode($3.nd, $6.nd, $1.name);
         strcpy(condExpr, "");
         //printf("if\n");
@@ -263,17 +320,12 @@ else_clause: ELSE {codeGen_else();} statement {
      }
     ;
 
-condition: value {
-                $$.nd = $1.nd;
-                $$.varType = $1.varType;
-                strcpy(condExpr, $1.name);
-                //printf("value-only condition\n");
-            }
-            | expression relop expression {
+condition:  expression relop expression {
                 checkType($1.varType, $3.varType);
                 char* expr1 = strdup(codeGen_expression($1.nd));
                 codeGen_clearWorkTree();
                 char* expr2 = strdup(codeGen_expression($3.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr, strdup(codeGen_condition(expr1, $1.varType, expr2, $3.varType, $2.name)));
                 $$.varType = INT;
                 $$.nd = AST_mkNode($1.nd, $3.nd, $2.name);                                
@@ -282,11 +334,13 @@ condition: value {
                 checkType($2.varType, INT);
                 $$.varType = $2.varType;
                 char* expr1 = strdup(codeGen_expression($2.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr, strdup(codeGen_condition(expr1, $1.varType, NULL, EMPTY, $1.name)));
                 $$.nd = AST_mkNode(NULL, $2.nd, $1.name);
           }
           | expression {                
                 char* expr1 = strdup(codeGen_expression($1.nd));
+                strcpy(condExpr, "");
                 strcpy(condExpr ,strdup(codeGen_condition(expr1, $1.varType, NULL, EMPTY, NULL)));
                 $$.varType = $1.varType;
                 $$.nd = $1.nd;
@@ -336,24 +390,25 @@ loop_statement: LOOP OPEN_PAREN condition CLOSE_PAREN {codeGen_loop(condExpr);} 
 %%
 
 void yyerror(const char* s) {
-    //printf("at line %d: Error; %s\n", yylineno, s);
+    printf("at line %d: Error; %s\n", yylineno, s);
     exit(1);
 }
 
 int main(int argc, char* argv[]) {
     static int WriteOnce = 0;
-    if (argc < 2) {
-        printf("Usage: %s <input_file>\n", argv[0]);
+    if (argc < 3) {
+        printf("Usage: %s <input_wordlang_file> <c_output_file>\n", argv[0]);
         return 1;
     }
-
-    FILE* inputFile = fopen(argv[1], "r");
-    if (inputFile == NULL) {
-        //printf("Error opening input file.\n");
+    strcpy(outputFile, argv[2]);
+    FILE* inputFile = fopen(argv[1], "r");    
+    if (inputFile == NULL || outputFile == NULL) {
+        printf("Error opening input file.\n");
         return 1;
     }
 
     yyin = inputFile;
+    
     if(WriteOnce == 0){
         codeGen_Init();
         symbolTable_init();
