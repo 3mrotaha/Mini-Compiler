@@ -11,7 +11,11 @@ void addExprNode(char* value, ASTnode_t* left, ASTnode_t* right);
 // clear the tree
 void clearTree(ASTnode_t* root);
 
-void codeGen_id(char* id);
+void codeGen_id(char* id, DataType_t type);
+
+void codeGen_idAssign(char* id);
+
+void codeGen_dataType(DataType_t type);
 
 void codeGen_Init(void);
 

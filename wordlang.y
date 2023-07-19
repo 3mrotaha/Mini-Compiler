@@ -47,7 +47,7 @@ void yyerror(const char* s);
 %token <nodeType> INPUT OUTPUT LOOP IF ELSE WHILE TRUE FALSE
 %token <nodeType> ADD REMOVE CONCAT GET 
 %token <nodeType> LT GT LE GE EQ NE EQUAL NOT COMMA SEMI_COLON OPEN_BRACKET CLOSE_BRACKET OPEN_PAREN CLOSE_PAREN
-%type <nodeType> program assignment datatype value expression conditional_statement else_clause if_clause condition loop_statement statement statement_list relop arthop declaration
+%type <nodeType> program definition assignment datatype value expression conditional_statement else_clause if_clause condition loop_statement statement statement_list relop arthop declaration
 
 %start program
 
@@ -81,7 +81,7 @@ statement: declaration   {
                 $$.nd = $1.nd;
                 //printf("declaration\n");
          }
-         | IDENTIFIER {codeGen_id($1.name);} assignment SEMI_COLON {
+         | IDENTIFIER {codeGen_idAssign($1.name);} assignment SEMI_COLON {
                 //printf("start assignment\n");
                 checkDeclaration($1.name);
                 $1.varType = getDataType($1.name);
@@ -130,19 +130,37 @@ datatype: CHAR_TYPE { insert_type(yytext);
         }
         ;
 
-declaration: datatype IDENTIFIER SEMI_COLON {
-                isValidVarName($2.name);
-                checkMultiDeclaration($2.name);
-                storeInSymbolTable($2.name, VARIABLE, dataType, yylineno, "");
-                $2.varType = dataType;
-                $2.nd = AST_mkNode(NULL, NULL, $2.name);
-                $$.nd = AST_mkNode($2.nd, NULL, "declaration");
-                codeGen_declare($2.name, dataType);
-                codeGen_initVar(dataType);
-                codeGen_punc($3.name);
+definition: IDENTIFIER {
+                isValidVarName($1.name);
+                checkMultiDeclaration($1.name);
+                storeInSymbolTable($1.name, VARIABLE, dataType, yylineno, "");
+                $1.varType = dataType;
+                $1.nd = AST_mkNode(NULL, NULL, $1.name);
+                $$.nd = AST_mkNode($1.nd, NULL, "definition");
+                codeGen_id($1.name, dataType);
+                //codeGen_initVar(dataType);
+                //printf("definition without assignment\n");
+            }
+           | definition COMMA IDENTIFIER{
+                isValidVarName($3.name);
+                checkMultiDeclaration($3.name);
+                storeInSymbolTable($3.name, VARIABLE, dataType, yylineno, "");
+                $3.varType = dataType;
+                $3.nd = AST_mkNode(NULL, NULL, $3.name);
+                $$.nd = AST_mkNode($1.nd, $3.nd, "definition");
+                codeGen_punc($2.name);
+                codeGen_id($3.name, dataType);
+                //codeGen_initVar(dataType);
+           }
+           | definition assignment COMMA {codeGen_punc($3.name)} definition
+           | definition assignment
+           ;
+declaration: datatype {codeGen_dataType(dataType);} definition SEMI_COLON {                               
+                $$.nd = AST_mkNode($3.nd, NULL, "declaration");
+                codeGen_punc($4.name);
                 //printf("declaration without assignment\n");
              }
-            | datatype IDENTIFIER COMMA {
+            /* | datatype IDENTIFIER COMMA {
                 isValidVarName($2.name);
                 checkMultiDeclaration($2.name);
                 storeInSymbolTable($2.name, VARIABLE, dataType, yylineno, "");
@@ -154,11 +172,22 @@ declaration: datatype IDENTIFIER SEMI_COLON {
                 codeGen_punc($3.name);
                 //printf("declaration without assignment\n");
              }
+            | datatype IDENTIFIER {codeGen_declare($2.name, dataType);} assignment COMMA {
+                isValidVarName($2.name);
+                checkMultiDeclaration($2.name);
+                storeInSymbolTable($2.name, VARIABLE, dataType, yylineno, "");
+                $2.varType = dataType;
+                checkType(dataType, $4.varType);
+                $2.nd = AST_mkNode(NULL, NULL, $2.name);
+                $$.nd = AST_mkNode($2.nd, $4.nd, "declaration");
+                codeGen_punc($5.name);
+                //printf("declaration with assignment\n");
+            }
            | datatype IDENTIFIER {codeGen_declare($2.name, dataType);} assignment SEMI_COLON {
                 isValidVarName($2.name);
                 checkMultiDeclaration($2.name);
-                checkType(dataType, $4.varType);
                 storeInSymbolTable($2.name, VARIABLE, dataType, yylineno, "");
+                checkType(dataType, $4.varType);
                 $2.varType = dataType;
                 $2.nd = AST_mkNode(NULL, NULL, $2.name);
                 $$.nd = AST_mkNode($2.nd, $4.nd, "declaration");
@@ -181,12 +210,36 @@ declaration: datatype IDENTIFIER SEMI_COLON {
                 codeGen_punc($2.name);                
                 //printf("declaration without assignment\n");                
             }
-            |  IDENTIFIER {codeGen_id($1.name);} assignment SEMI_COLON {
+            |  IDENTIFIER {
+                isValidVarName($1.name);
                 checkDeclaration($1.name);
-                $1.varType = getDataType($1.name);
-                checkType($1.varType, $3.varType);                
+                storeInSymbolTable($1.name, VARIABLE, dataType, yylineno, "");
+                $1.varType = dataType;                
+                char* result = strdup("");
+                if(dataType != INT && dataType != CHAR)
+                    result = strdup("*");
+                strcat(result, $1.name);
+                codeGen_id(result);
+                } assignment SEMI_COLON {
+                checkType(dataType, $3.varType);                
                 $1.nd = AST_mkNode(NULL, NULL, $1.name);
                 $$.nd = AST_mkNode($1.nd, $3.nd, $1.name);
+                codeGen_punc($4.name);
+            }
+            |  IDENTIFIER {
+                    isValidVarName($1.name);
+                    checkDeclaration($1.name);
+                    storeInSymbolTable($1.name, VARIABLE, dataType, yylineno, "");
+                    $1.varType = dataType;                
+                    char* result = strdup("");
+                    if(dataType != INT && dataType != CHAR)
+                        result = strdup("*");
+                    strcat(result, $1.name);
+                    codeGen_id(result);
+                } assignment COMMA {
+                checkType(dataType, $3.varType);                
+                $1.nd = AST_mkNode(NULL, NULL, $1.name);
+                $$.nd = AST_mkNode($1.nd, $3.nd, "declaration");
                 codeGen_punc($4.name);
             }
             | IDENTIFIER SEMI_COLON {
@@ -204,7 +257,7 @@ declaration: datatype IDENTIFIER SEMI_COLON {
                 codeGen_initVar(dataType);
                 codeGen_punc($2.name);
                 //printf("declaration without assignment\n");
-            }      
+            }       */
            ;
 
 
@@ -255,15 +308,14 @@ value: INT_CONSTANT       {
         //printf("char\n");
     }
      | WORD_CONSTANT      { 
-        storeInSymbolTable($1.name, CONSTANT, WORD, yylineno, $1.wordVal);
+        storeInSymbolTable($1.name, CONSTANT, WORD, yylineno, yytext);
         $$.varType = WORD;
         $$.nd = AST_mkNode(NULL, NULL, $1.name);
         $$.name = strdup($1.name);
         //printf("word\n");
     }
      | SENTENCE_CONSTANT  {
-         printf("sentence\n"); 
-         storeInSymbolTable($1.name, CONSTANT, SENTENCE, yylineno, $1.wordVal);
+         storeInSymbolTable($1.name, CONSTANT, SENTENCE, yylineno, yytext);
          $$.varType = SENTENCE;
          $$.nd = AST_mkNode(NULL, NULL, $1.name);
          $$.name = strdup($1.name);
@@ -417,10 +469,7 @@ int main(int argc, char* argv[]) {
 
     yyparse();
     fclose(inputFile);
-    /* print_symbol_table(); */
-    /* traverseFile = fopen("traverse.txt", "w+");
-    AST_traverse(root, 0);
-    fclose(traverseFile); */
+    print_symbol_table();
     codeGen_Close();
     return 0;
 }

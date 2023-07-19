@@ -7,7 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}\\outPut.c",
+                "${workspaceFolder}\\gharam.c",
                 "-o",
                 "${workspaceFolder}\\out.exe"
             ],

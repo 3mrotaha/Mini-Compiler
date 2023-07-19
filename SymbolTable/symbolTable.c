@@ -80,7 +80,7 @@ void print_symbol_table(void){
     fprintf(fp,"LINE\t\t\tTYPE\t\t\tDATA TYPE\t\t\tID\t\t\tVALUE\n");
     fprintf(fp,"----------------------------------------------------------------------------------------------------------------\n");
     ListEntry e;
-    for(int i = 0; i < SYMBOL_TABLE_SIZE; i++){
+    for(int i = 0; i < symbolTableIndex; i++){
         ListRetrieve(i, &e, symbolTable);
         if(e.name != NULL){
             fprintf(fp,"%d\t\t\t", e.lineNo);
@@ -154,10 +154,12 @@ int search_for_duplicates(char* name){
 
 DataType_t get_Identifier(char *name, char** value){
     int index = lookup(name);
+
     if(index == -1){
         printf("line %d: Variable %s not declared\n", yylineno, name);
         exit(1);
     }
+
     ListEntry e;
     ListRetrieve(index, &e, symbolTable);
     *value = strdup(e.Value);

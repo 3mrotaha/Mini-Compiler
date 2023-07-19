@@ -1,7 +1,7 @@
 #ifndef _SYMBOL_TABLE_H_
 #define _SYMBOL_TABLE_H_
 
-#define SYMBOL_TABLE_SIZE 1000
+#define SYMBOL_TABLE_SIZE 50000
 
 typedef enum{
     INT,

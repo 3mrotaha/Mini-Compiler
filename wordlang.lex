@@ -31,10 +31,10 @@
 "false"         { yylval.nodeType.name = strdup(yytext); yylval.nodeType.intVal = 0; yylval.nodeType.varType=(DataType_t)INT; yylval.nodeType.type = KEYWORD; return FALSE; }
 ""              { yylval.nodeType.name = strdup(yytext); yylval.nodeType.intVal = 0; yylval.nodeType.varType=(DataType_t)INT; yylval.nodeType.type = KEYWORD; return FALSE; }
 
-"'"(.){1}"'"    { yylval.nodeType.name = strdup(yytext); yylval.nodeType.charVal = yytext[1]; yylval.nodeType.varType=(DataType_t)CHAR; yylval.nodeType.type = CONSTANT;return CHAR_CONSTANT; }
-"\""([^"\t\n ]*?)"\""   { yylval.nodeType.name = (char*) malloc(100);strcpy(yylval.nodeType.name, yytext); yylval.nodeType.type = CONSTANT; yylval.nodeType.varType=(DataType_t)WORD; return WORD_CONSTANT; }
-"^"(.)[^^]*"^"    { yylval.nodeType.name = (char*) malloc(100);strcpy(yylval.nodeType.name, yytext); yylval.nodeType.name[0] = '\"'; yylval.nodeType.name[strlen(yytext) - 1] = '\0'; strcat(yylval.nodeType.name, "\\n\""); yylval.nodeType.type = CONSTANT; return SENTENCE_CONSTANT; }
-"^^"            { yylval.nodeType.name = (char*) malloc(100);strcpy(yylval.nodeType.name, yytext); yylval.nodeType.name[0] = '\"'; yylval.nodeType.name[strlen(yytext) - 1] = '\0'; strcat(yylval.nodeType.name, "\\n\""); yylval.nodeType.type = CONSTANT; return SENTENCE_CONSTANT; }
+"'"(.){1}"'"    { yylval.nodeType.name = strdup(yytext); yylval.nodeType.charVal = yytext[1]; yylval.nodeType.varType=(DataType_t)CHAR; yylval.nodeType.type = CONSTANT; yylval.nodeType.charVal = '\0';return CHAR_CONSTANT; }
+"\""([^"\t\n ]*?)"\""   { yylval.nodeType.name = (char*) calloc(100, 1); strcpy(yylval.nodeType.name, yytext); yylval.nodeType.type = CONSTANT; yylval.nodeType.varType=(DataType_t)WORD; ""; return WORD_CONSTANT; }
+"^"[^^]*"^"    { yylval.nodeType.name = (char*) calloc(100, 1); strcpy(yylval.nodeType.name, yytext); yylval.nodeType.name[0] = '\"'; yylval.nodeType.name[strlen(yytext) - 1] = '\0'; strcat(yylval.nodeType.name, "\\n\""); yylval.nodeType.wordVal = strdup(yytext);yylval.nodeType.varType = SENTENCE; yylval.nodeType.type = CONSTANT; return SENTENCE_CONSTANT; }
+"^^"            { yylval.nodeType.name = (char*)calloc(10, 1); strcpy(yylval.nodeType.name, "\"\\n\""); yylval.nodeType.varType = SENTENCE; yylval.nodeType.type = CONSTANT; yylval.nodeType.wordVal = strdup("\n"); return SENTENCE_CONSTANT;}
 "-"[0-9]+        { yylval.nodeType.name = strdup(yytext); yylval.nodeType.intVal = atoi(yytext + 1) * -1; yylval.nodeType.type = CONSTANT; yylval.nodeType.varType=(DataType_t)INT; return INT_CONSTANT; }
 [0-9]+           { yylval.nodeType.name = strdup(yytext); yylval.nodeType.intVal = atoi(yytext); yylval.nodeType.type = CONSTANT; yylval.nodeType.varType=(DataType_t)INT; return INT_CONSTANT; }
 [a-zA-Z_][a-zA-Z0-9_]{0,31} {yylval.nodeType.name = strdup(yytext); yylval.nodeType.type = VARIABLE; return IDENTIFIER; }
