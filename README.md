@@ -54,8 +54,8 @@ Once the front end has completed these phases, the intermediate code generator t
 | '<=' | Less Than or Equal Operator, it's used to check if the first value is less than or equal to the second value | 5 | Left to right |
 
 # Control flow
-| <div style="width:500px">Statement</div>| Description |
-|---------------------------------------------------------------------------------------------|-------------|
+| <div style="width:500px">Statement</div>|  <div style="width:300px">Description</div> |
+|---------------------------------|-------------|
 | `if (<condition>) <statement> \| {<statement_list>}` | If statement, if the condition is true, the statement or the statement list will be executed |
 | `if (<condition>) <statement> \| {<statement_list>}` <br> `else <statement> \| {<statement_list>}` | If-else statement, if the condition is true, the first statement or the first statement list will be executed, otherwise the second statement or the second statement list will be executed |
 | `while (<condition>)` <br> `<statement> \| {<statement_list>}` | While statement, while the condition is true, the statement or the statement list will be executed |
