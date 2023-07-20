@@ -67,6 +67,18 @@ Once the front end has completed these phases, the intermediate code generator t
 | `output <value> \| <expression>;` | Output statement, it's used to print a value or the result of an expression to the console |
 | `input <sentence_constant> IDENTIFIER;` | Input statement, it's used to read a sentence from the console and store it in the variable |
 
+# Generated Errors
+| Error | Description |
+|-------|-------------|
+| `Syntax Error` | The input file contains a syntax error |
+| `Parser Error` | The input file contains a false grammar rule |
+| `No more space to store variables <variable_name>` | The symbol table is full |
+| `Line <line_number>: Variable <variable_name> is not declared` | The variable is not declared |
+| `Line <line_number>: Multiple declaration of variable <variable_name>` | The variable is declared more than once |
+| `Line <line_number>: <variable_name> is a reserved word` | The variable name is a reserved word |
+| `Line <line_number>: Assignment between variables of different types` | The variable types are not compatible |
+| `Line <line_number>: Invalid operands to binary <operator>` | The operands of the operator are not compatible |
+
 # Example Code
 
 ## Example 1
