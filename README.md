@@ -79,9 +79,16 @@ Once the front end has completed these phases, the intermediate code generator t
 | `Line <line_number>: Assignment between variables of different types` | The variable types are not compatible |
 | `Line <line_number>: Invalid operands to binary <operator>` | The operands of the operator are not compatible |
 
+# Wordlang Compiler Downsides
+- The compiler doesn't support scope analysis, so the variables are global even if they are declared inside a block
+- The compiler doesn't support functions or procedures
+- The compiler doesn't support arrays
+- The only supported data types are `int`, `char`, `word` and `sentence`
+- The compiler doesn't support `break` or `continue` statements
+
 # Example Code
 
-## Example 1
+## Example 1 (concatenate words and sentences)
 ```
 word w1;
 sentence s1 = ^^, adverb = ^^;
@@ -96,7 +103,7 @@ output s1 # "topic";
 Compilers are very very very interesting topic
 ```
 
-## Example 2
+## Example 2 (find the article of a word)
 ```
 word object = "", article = "";
 char notVowel;
@@ -116,4 +123,50 @@ output s1;
 What are you holding?
 apple
 You are holding an apple
+```
+
+## Example 3 (sort a sentence, bubble sort)
+```
+sentence s1 = ^are you kidding me you cannot be serious^;
+// input ^Enter a non-punctuated sentence^ s1; // uncomment this line to input the sentence from the console
+int i, j, count;
+count = 0;
+while(s1:count)
+    count = count + 1;
+sentence s;
+i = 0;
+loop(count){
+    int k = 0;
+    loop(count - 1){
+        if(k <= count - 2){  
+            if(s1:k > s1:(k+1)){
+                // Swap
+                // assign before target
+                j = 0;
+                s = ^^;
+                loop(k){
+                    s = s # s1:j;
+                    j = j + 1;
+                }
+                // Swap target
+                s = s # s1:(k+1);
+                s = s # s1:k;
+                j = j + 2;
+                // assign after target
+                while(j < count){
+                    s = s # s1:j;
+                    j = j + 1;
+                }
+                s1 = s;
+            }
+        }
+        k = k + 1;
+    }
+    i = i + 1;
+}
+output s1;
+```
+### Example 3 output
+```
+are be cannot kidding me serious you you
 ```
