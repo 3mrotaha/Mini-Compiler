@@ -80,11 +80,15 @@ Once the front end has completed these phases, the intermediate code generator t
 | `Line <line_number>: Invalid operands to binary <operator>` | The operands of the operator are not compatible |
 
 # Wordlang Compiler Downsides
-- The compiler doesn't support scope analysis, so the variables are global even if they are declared inside a block
-- The compiler doesn't support functions or procedures
-- The compiler doesn't support arrays
-- The only supported data types are `int`, `char`, `word` and `sentence`
-- The compiler doesn't support `break` or `continue` statements
+- The compiler doesn't support scope analysis, so the variables are global even if they are declared inside a block.
+- The compiler doesn't support functions or procedures.
+- The compiler doesn't support arrays.
+- There are some issues with the operator precedence and associativity.
+- The compiler doesn't support `float` or `double` data types.
+- The compiler doesn't support `break` or `continue` statements.
+- The compiler doesn't support `switch` statements.
+- The compiler doesn't support `do-while` statements.
+
 
 # Example Code
 
